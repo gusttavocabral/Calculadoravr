@@ -1,0 +1,3543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Vanessa Rodopoulos — Orçamento</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="VR Joias">
+  <meta name="theme-color" content="#08172E">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+    rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --navy: #08172E;
+      --navy2: #2b3d5b;
+      --gold: #d9b59d;
+      --gold2: #E5C9B6;
+      --cream: #F7F4EF;
+      --white: #FFFFFF;
+      --border: #ebebeb;
+      --border2: #d8d0c5;
+      --muted: #7a7168;
+      --text: #08172E;
+      --green: #2d6e45;
+      --red: #9b2020;
+    }
+
+    html, body {
+      background-color: #D9B69D !important; /* Bronze Vanessa Rodopoulos */
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── NAV ─────────────────────────────────────────────────── */
+    .nav {
+      background: var(--navy);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0 5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      height: 100%;
+    }
+
+    .nav-logo {
+      height: 38px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 2px
+    }
+
+    .nav-tab {
+      padding: 7px 20px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 1px solid transparent;
+      background: none;
+      color: rgba(255, 255, 255, 0.7);
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .nav-tab:hover {
+      color: var(--white);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-tab.active {
+      background: var(--gold);
+      color: var(--white);
+      border-color: var(--gold);
+    }
+
+    /* ── PÁGINAS ─────────────────────────────────────────────── */
+    .page {
+      display: none;
+      padding-top: 64px;
+      min-height: 100vh;
+      background-color: var(--gold) !important;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* ── LAYOUT DIVIDIDO (PADRÃO VR) ────────────────────────── */
+    .split-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: calc(100vh - 64px);
+    }
+
+    .split-left {
+      padding: 4.2rem 5rem;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      background: #D9B69D; /* Bronze Vanessa Rodopoulos */
+      box-shadow: inset -20px 0 50px rgba(0, 0, 0, 0.05);
+    }
+
+    .split-right {
+      padding: 4.2rem 5rem;
+      background: rgba(247, 244, 239, 0.4);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      display: flex;
+      flex-direction: column;
+      box-shadow: inset 20px 0 50px rgba(0, 0, 0, 0.02);
+    }
+
+    .orca-right .result-card {
+      margin-top: 50px; /* Alinhamento milimétrico com o topo dos cards de metal à esquerda */
+    }
+
+    /* header da seção esquerda */
+    .page-eyebrow {
+      font-family: 'Myriad Pro Semibold', 'Poppins', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 300;
+      margin-bottom: 6px;
+    }
+
+    .page-title {
+      font-family: 'Adega Serif Bold', 'Poppins', serif;
+      font-size: 26px;
+      font-weight: 400;
+      color: var(--navy);
+      line-height: 1.25;
+      margin-bottom: 2rem;
+    }
+
+    .config-title {
+      font-family: 'Adega Serif Bold', 'Poppins', serif;
+      font-size: 26px;
+      font-weight: 400;
+      color: var(--navy);
+      margin-bottom: 0.5rem;
+    }
+
+    .page-title em {
+      font-style: italic;
+      color: var(--gold)
+    }
+
+    /* cotações */
+    .pill-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 2rem;
+    }
+
+    .pill-row-prices {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .pill-row-title {
+      font-family: 'Adega Serif Bold', 'Poppins', serif;
+      font-size: 26px;
+      font-weight: 400;
+      color: var(--navy);
+      text-align: center;
+      line-height: 1.2;
+      margin-bottom: 5px;
+    }
+
+    .pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+      font-size: 13px;
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0
+    }
+
+    .dot-gold {
+      background: var(--gold)
+    }
+
+    .dot-silver {
+      background: #aaa
+    }
+
+    .pill-label {
+      color: var(--muted);
+      flex: 1;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase
+    }
+
+    .pill-val {
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--navy)
+    }
+
+    .badge {
+      font-size: 9px;
+      padding: 2px 7px;
+      border-radius: 2px;
+      background: #e8f2ec;
+      color: var(--green);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .badge-err {
+      background: #f8e8e8;
+      color: var(--red)
+    }
+
+    .badge-warn {
+      background: #fff3cd;
+      color: #856404
+    }
+
+    /* cards de entrada */
+    .input-card {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 0.8rem 1.4rem;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      margin-bottom: 0.8rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .input-card:hover {
+      background: rgba(248, 244, 240, 0.85);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    /* seções de formulário */
+    .sec {
+      margin-bottom: 1.75rem
+    }
+
+    .sec-title {
+      color: var(--navy);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      padding: 0;
+      border: none !important;
+      background: none !important;
+      box-shadow: none !important;
+      font-weight: 600;
+      text-align: left;
+      backdrop-filter: none !important;
+    }
+
+    .field {
+      margin-bottom: 0.6rem /* Espaçamento entre campos reduzido */
+    }
+
+    .field label {
+      display: block;
+      font-size: 9px; /* Label um pouco menor */
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    select,
+    input[type=number],
+    input[type=text],
+    input[type=date] {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 8px;
+      font-family: 'Jost', sans-serif;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.7) !important; /* Estilo 'Dura' mais sólido e inquestionável */
+      backdrop-filter: blur(10px);
+      color: var(--navy);
+      appearance: none !important;
+      -webkit-appearance: none !important;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .field select:focus,
+    .field input:focus {
+      outline: none;
+      border-color: var(--gold2)
+    }
+
+    .sel-wrap {
+      position: relative;
+      width: 100%
+    }
+
+    /* --- CUSTOM SELECT (DURA SYSTEM) --- */
+    .vr-select-container {
+      position: relative;
+      width: 100%;
+      user-select: none;
+      font-family: 'Jost', sans-serif;
+    }
+
+    .vr-select-trigger {
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--gold) !important;
+      border-radius: 4px;
+      color: var(--navy);
+      font-size: 14px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+      width: 100%;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .vr-select-trigger:hover {
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .vr-select-trigger::after {
+      content: "";
+      width: 10px;
+      height: 6px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6H0z' fill='%2308172E' /%3E%3C/svg%3E") no-repeat center;
+      transition: transform 0.3s ease;
+      opacity: 0.8;
+    }
+
+    .vr-select-container.open {
+      z-index: 9999 !important; /* Prioridade total ao abrir */
+    }
+
+    .vr-select-container.open .vr-select-options {
+      display: block !important;
+    }
+
+    .vr-select-container.open .vr-select-trigger::after {
+      transform: rotate(180deg);
+    }
+
+    .vr-select-options {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.92); /* Quase opaco para bloquear texto de fundo */
+      backdrop-filter: blur(80px); /* Desfoque extremo */
+      -webkit-backdrop-filter: blur(80px); /* Suporte para Safari/iOS */
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 40px 80px rgba(0, 0, 0, 0.3);
+      z-index: 9999;
+      max-height: 300px;
+      overflow-y: auto;
+      display: none;
+      padding: 10px;
+    }
+
+    .vr-select-option {
+      padding: 14px 18px; /* Aumentado para melhor ergonomia e respiro */
+      border-radius: 12px;
+      font-size: 14px;
+      color: var(--navy);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 6px; /* Mais espaço entre opções */
+      line-height: 1.4; /* Melhor para textos longos como bandeiras */
+    }
+
+    .vr-select-option:hover {
+      background: rgba(217, 181, 157, 0.15);
+      transform: translateX(5px);
+    }
+
+    .vr-select-option.selected {
+      background: rgba(217, 181, 157, 0.25) !important;
+      color: var(--navy) !important;
+      font-weight: 600;
+      border-left: 4px solid var(--gold);
+    }
+
+    /* Esconder o select real */
+    .hidden-row {
+      display: none !important;
+    }
+
+    .hidden-select {
+      display: none !important;
+    }
+
+    .z-high {
+      z-index: 9999 !important;
+      position: relative !important;
+    }
+
+    /* Unificação de Escala Histórico/Config */
+    #page-hist .sec, #page-config .config-wrap > div, #page-proposta .proposta-wrap {
+       max-width: 1100px !important;
+       margin: 0 auto !important;
+       padding: 3rem !important;
+    }
+
+    #stones-list > div:first-child .field:first-child {
+      margin-top: 0 !important;
+    }
+
+    .formula-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+      font-style: italic
+    }
+
+    .row2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px
+    }
+
+    /* ── MOBILE ──────────────────────────────────────────────── */
+    @media(max-width:720px) {
+
+      /* nav: logo em cima, abas embaixo centralizadas */
+      .nav {
+        padding: 12px 16px 0;
+        height: auto;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+      }
+
+      .nav-brand img {
+        height: 28px;
+        display: block;
+        margin: 0 auto
+      }
+
+      .nav-tabs {
+        width: calc(100% + 32px);
+        margin: 10px -16px 0;
+        border-top: 1px solid var(--border);
+        display: flex;
+      }
+
+      .nav-tab {
+        flex: 1;
+        text-align: center;
+        padding: 10px 4px;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        border-radius: 0;
+        border-top: 2px solid transparent;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+      }
+
+      .nav-tab.active {
+        background: #F7F4EF;
+        border-top: 2px solid var(--navy);
+        color: var(--navy);
+      }
+
+      /* layout: coluna única */
+      .orca-wrap {
+        grid-template-columns: 1fr
+      }
+
+      .orca-left {
+        padding: 35px 28px;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        text-align: center;
+      }
+
+      .orca-right {
+        padding: 28px
+      }
+
+      /* título */
+      .page-eyebrow {
+        text-align: center
+      }
+
+      .page-title {
+        font-size: 26px;
+        margin-bottom: 16px;
+        text-align: center
+      }
+
+      .sec-title {
+        text-align: left
+      }
+
+      .field label {
+        text-align: left
+      }
+
+      .pill-row {
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .pill-row-prices {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .pill-row-title {
+        font-size: 24px;
+        margin-bottom: 8px;
+      }
+
+      .pill {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        min-width: 0;
+      }
+
+      .pill-label {
+        font-size: 9px;
+        letter-spacing: 0.06em;
+        white-space: nowrap
+      }
+
+      .pill-val {
+        font-size: 15px;
+        font-weight: 600;
+        white-space: nowrap
+      }
+
+      .badge {
+        font-size: 9px;
+        margin-top: 2px;
+        display: inline-block
+      }
+
+      /* campos */
+      .field select,
+      .field input[type=number],
+      .field input[type=text] {
+        padding: 13px 14px;
+        font-size: 16px;
+        border-radius: 8px;
+      }
+
+      .field {
+        margin-bottom: 10px
+      }
+
+      .sec {
+        margin-bottom: 18px
+      }
+
+      .row2 {
+        gap: 8px
+      }
+
+
+      /* resultado */
+      .result-card {
+        padding: 18px 16px
+      }
+
+      .result-total {
+        font-size: 38px
+      }
+
+      .btn-gerar {
+        padding: 15px;
+        font-size: 11px;
+        border-radius: 8px;
+        margin-top: 12px;
+      }
+
+      /* proposta */
+      .proposta-wrap {
+        padding: 20px 16px
+      }
+
+      .proposta-form-card {
+        padding: 16px
+      }
+
+      .proposta-input,
+      .proposta-select {
+        border-radius: 8px;
+      }
+
+      .proposta-btn-imprimir {
+        padding: 15px;
+        font-size: 11px;
+        border-radius: 8px;
+        margin-top: 12px
+      }
+
+      .proposta-resumo {
+        padding: 14px
+      }
+
+      /* config */
+      .config-wrap {
+        padding: 20px 16px
+      }
+
+      .stone-card {
+        padding: 14px
+      }
+
+      .stone-card-btn {
+        padding: 8px 14px;
+        font-size: 10px
+      }
+
+
+      .field {
+        margin-bottom: 0.875rem
+      }
+
+      .sec {
+        margin-bottom: 1.25rem
+      }
+
+      .row2 {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px
+      }
+
+
+      /* resultado */
+      .result-card {
+        padding: 1.25rem
+      }
+
+      .result-total {
+        font-size: 36px
+      }
+
+      .btn-gerar {
+        padding: 15px;
+        font-size: 12px;
+        margin-top: 1rem;
+        border-radius: 6px;
+      }
+
+      /* proposta */
+      .proposta-wrap {
+        padding: 1.25rem 1rem
+      }
+
+      .proposta-form-card {
+        padding: 1.25rem
+      }
+
+      .proposta-input,
+      .proposta-select {
+        padding: 13px 14px;
+        font-size: 16px;
+        border-radius: 6px;
+      }
+
+      .proposta-btn-imprimir {
+        padding: 15px;
+        font-size: 12px;
+        border-radius: 6px;
+        margin-top: 0.875rem;
+      }
+
+      .proposta-resumo {
+        padding: 1rem
+      }
+
+      /* configuração */
+      .config-wrap {
+        padding: 1.25rem 1rem
+      }
+
+      .stone-card {
+        padding: 1rem
+      }
+
+      .stone-card-btn {
+        padding: 8px 14px;
+        font-size: 10px
+      }
+    }
+
+    /* caixa manual */
+    .manual-box {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.875rem 1rem;
+      margin-bottom: 1.25rem;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .manual-box input {
+      padding: 7px 10px;
+      border: 1px solid var(--border2);
+      border-radius: 3px;
+      font-family: 'Jost', sans-serif;
+      font-size: 13px;
+      background: var(--white);
+      color: var(--navy);
+      width: 100%;
+      margin-top: 3px;
+    }
+
+    .manual-sub {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 3px;
+      font-weight: 500
+    }
+
+    /* pedras */
+    .no-stones {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 4px 0;
+      font-style: italic
+    }
+
+    .goto-config {
+      font-size: 11px;
+      color: var(--navy);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+      display: inline-block;
+      margin-top: 6px;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── RESULTADO ───────────────────────────────────────────── */
+    .result-card {
+      background: rgba(42, 55, 76, 0.85); /* #2A374C translúcido */
+      color: var(--white);
+      padding: 3rem;
+      border-radius: 16px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+      position: sticky;
+      top: 2rem;
+      margin-top: 106px; /* Alinha com campo Nome do cliente */
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: background 0.5s ease, box-shadow 0.5s ease;
+    }
+
+    .result-card.active {
+      background: rgba(7, 23, 46, 0.95); /* #07172E translúcido */
+      box-shadow: 0 30px 60px rgba(7, 23, 46, 0.4);
+      border-color: rgba(217, 181, 157, 0.3); /* Um toque de dourado na borda ao acender */
+    }
+
+    .result-eyebrow {
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+
+    .result-total {
+      font-family: 'Playfair Display', serif;
+      font-size: 48px;
+      font-weight: 400;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 1.5rem;
+    }
+
+    .breakdown {
+      border-top: 1px solid var(--navy2);
+      padding-top: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .brow {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 13px
+    }
+
+    .brow-label {
+      color: var(--gold);
+      opacity: 0.9;
+      font-weight: 300
+    }
+
+    .brow-val {
+      font-weight: 500;
+      color: var(--white)
+    }
+
+    .brow-total-row {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 12px;
+      margin-top: 2px;
+      font-size: 14px;
+    }
+
+    .brow-total-row .brow-label {
+      color: var(--gold);
+      font-weight: 400;
+      letter-spacing: 0.05em
+    }
+
+    .brow-total-row .brow-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      color: var(--white)
+    }
+
+    /* ornamento decorativo */
+    .ornament {
+      text-align: center;
+      margin: 1.5rem 0 0;
+      color: var(--navy2);
+      font-size: 18px;
+      letter-spacing: 0.3em;
+    }
+
+    /* ── CONFIGURAÇÃO ────────────────────────────────────────── */
+    .config-wrap {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 3rem 2rem
+    }
+
+    .config-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 400;
+      color: var(--navy);
+      margin: 6px 0 0.5rem;
+    }
+
+    .config-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 2.5rem;
+      font-weight: 300;
+      line-height: 1.6
+    }
+
+    .stone-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 10px
+    }
+
+    .stone-card {
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    }
+
+    .stone-card:hover {
+      background: rgba(255, 255, 255, 0.6);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .stone-card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--navy);
+      margin-bottom: 5px;
+    }
+
+    .stone-card-status {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11px;
+      color: var(--muted)
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: var(--border2)
+    }
+
+    .status-dot.loaded {
+      background: #4caf72
+    }
+
+    .stone-card-remove {
+      font-size: 10px;
+      color: var(--muted);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: 'Poppins', sans-serif;
+      margin-left: 10px;
+      letter-spacing: 0.05em;
+    }
+
+    body, button, input, select, textarea {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .stone-card-btn {
+      padding: 8px 18px;
+      border: 1px solid var(--border2);
+      border-radius: 3px;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      background: var(--white);
+      color: var(--navy);
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .stone-card-btn:hover {
+      background: var(--navy);
+      color: var(--white);
+      border-color: var(--navy)
+    }
+
+    .stone-card-btn input {
+      display: none
+    }
+
+    .add-stone-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 20px;
+      border: 1px dashed var(--border2);
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 500;
+      color: var(--muted);
+      transition: all 0.2s;
+      margin-top: 16px;
+    }
+
+    .add-stone-label:hover {
+      border-color: var(--gold);
+      color: var(--gold)
+    }
+
+    .config-hint {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 1rem 1.25rem;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2rem;
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    .config-hint strong {
+      color: var(--navy);
+      font-weight: 500
+    }
+
+    /* linha decorativa */
+    .divider-line {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2rem 0;
+    }
+
+    /* memória de cálculo na config */
+    .calc-memory {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 1.25rem 1.5rem;
+      margin-top: 2rem
+    }
+
+    .calc-memory-title {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+      margin-bottom: 1rem;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .calc-memory-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted)
+    }
+
+    .calc-memory-row:last-child {
+      border-bottom: none
+    }
+
+    .calc-memory-row span:last-child {
+      color: var(--navy);
+      font-weight: 500
+    }
+
+    /* ── TELA DE ENTRADA ─────────────────────────────────────── */
+    #page-entrada {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--cream);
+      z-index: 1000;
+    }
+
+    #page-entrada.active {
+      display: flex
+    }
+
+    #page-entrada:not(.active) {
+      display: none
+    }
+
+    .entrada-card {
+      text-align: center;
+      max-width: 440px;
+      width: 100%;
+      padding: 0 2rem;
+    }
+
+    .entrada-monogram {
+      font-family: 'Playfair Display', serif;
+      font-size: 48px;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .entrada-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+
+    .entrada-sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 12px;
+      letter-spacing: 0.22em;
+      color: var(--gold);
+      text-transform: lowercase;
+      margin-bottom: 2.5rem;
+    }
+
+    .entrada-pergunta {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      color: var(--navy);
+      margin-bottom: 1.5rem;
+      font-style: italic;
+      font-weight: 400;
+    }
+
+    .entrada-input {
+      width: 100%;
+      padding: 14px 18px;
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      color: var(--navy);
+      background: var(--white);
+      text-align: center;
+      margin-bottom: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .entrada-input:focus {
+      outline: none;
+      border-color: var(--gold)
+    }
+
+    .entrada-btn {
+      width: 100%;
+      padding: 13px;
+      background: var(--navy);
+      color: var(--white);
+      border: none;
+      border-radius: 4px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .entrada-btn:hover {
+      background: var(--navy2)
+    }
+
+    /* ── BOTÃO GERAR ORÇAMENTO ───────────────────────────────── */
+    .btn-gerar {
+      width: 100%;
+      margin-top: 1.25rem;
+      padding: 15px;
+      background: rgba(217, 181, 157, 0.9);
+      backdrop-filter: blur(10px);
+      color: var(--navy);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: none;
+      box-shadow: 0 4px 15px rgba(204, 125, 81, 0.2);
+    }
+
+    .btn-gerar:hover {
+      background: var(--gold2);
+      color: var(--navy)
+    }
+
+    /* ── PÁGINA PROPOSTA ─────────────────────────────────────── */
+    .proposta-wrap {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 3rem 2rem
+    }
+
+    .proposta-form-card {
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      padding: 2.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.05);
+    }
+
+    .proposta-form-title {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+      margin-bottom: 1.25rem;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .proposta-input, .proposta-select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 6px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(10px);
+      color: var(--navy);
+      transition: all 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .proposta-btn-imprimir {
+      width: 100%;
+      padding: 14px;
+      background: var(--navy);
+      color: var(--white);
+      border: none;
+      border-radius: 4px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 1rem;
+    }
+
+    .proposta-btn-imprimir:hover {
+      background: var(--navy2)
+    }
+
+    .proposta-resumo {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .proposta-resumo-title {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+    }
+
+    .proposta-resumo-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .proposta-resumo-row:last-child {
+      border-bottom: none;
+      font-weight: 500;
+      color: var(--navy)
+    }
+
+    /* ── PRINT PROPOSTA (FORMATO A4) ────────────────────────── */
+    @media print {
+      @page {
+        size: A4;
+        margin: 0;
+      }
+
+      /* esconde tudo que não é a proposta */
+      .nav,
+      .nav-bar,
+      #page-orca,
+      #page-config,
+      #page-hist,
+      #page-entrada,
+      #proposta-form-area,
+      .proposta-btn-imprimir,
+      .proposta-resumo,
+      .no-print {
+        display: none !important;
+      }
+
+      #page-proposta {
+        display: block !important;
+        background: white !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        min-height: auto !important;
+      }
+
+      .proposta-wrap {
+        padding: 0 !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        background: white !important;
+        min-height: auto !important;
+      }
+
+      .proposta-wrap > div {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+        backdrop-filter: none !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+
+      #proposta-print {
+        display: block !important;
+        width: 210mm;
+        min-height: 297mm;
+        padding: 15mm;
+        margin: 0 auto;
+        background: white !important;
+        box-shadow: none !important;
+        box-sizing: border-box;
+      }
+
+      .doc-wrap {
+        padding: 0 !important;
+        width: 100% !important;
+        box-shadow: none !important;
+        background: white !important;
+      }
+
+      body {
+        background: white !important;
+        overflow: visible !important;
+        height: auto !important;
+      }
+
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    }
+
+    #proposta-print {
+      display: none;
+      background: white;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      border-radius: 4px;
+      margin: 2rem auto;
+      width: 210mm;
+      min-height: 297mm;
+      padding: 20mm;
+    }
+
+    /* layout do documento impresso */
+    .doc-wrap {
+      font-family: 'Poppins', sans-serif;
+      color: #08172E;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: #FFFFFF
+    }
+
+    .doc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid #08172E
+    }
+
+    .doc-logo-name {
+      font-family: 'Adega Serif Bold', 'Poppins', serif;
+      font-size: 20px;
+      color: #08172E
+    }
+
+    .doc-logo-sub {
+      font-family: 'Myriad Pro Semibold', 'Poppins', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: #CC7D51;
+      margin-top: 3px
+    }
+
+    .doc-header-info {
+      text-align: right;
+      font-size: 11px;
+      color: #7a7168;
+      line-height: 1.7
+    }
+
+    .doc-num {
+      font-family: 'Adega Serif Bold', 'Poppins', serif;
+      font-size: 22px;
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #08172E
+    }
+
+    .doc-cliente-label {
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #7a7168;
+      font-weight: 500;
+      margin-bottom: 4px
+    }
+
+    .doc-cliente-name {
+      font-family: 'Adega Serif Bold', 'Poppins', serif;
+      font-size: 18px;
+      color: #08172E;
+      margin-bottom: 1.5rem
+    }
+
+    .doc-divider {
+      border: none;
+      border-top: 1px solid #ebebeb;
+      margin: 1.5rem 0
+    }
+
+    .doc-item {
+      background: #F7F4EF;
+      border-radius: 6px;
+      padding: 1.5rem;
+      margin-bottom: 1rem
+    }
+
+    .doc-item-nome {
+      font-family: 'Adega Serif Bold', 'Poppins', serif;
+      font-size: 17px;
+      color: #08172E;
+      margin-bottom: 0.75rem
+    }
+
+    .doc-item-detalhe {
+      font-size: 12px;
+      color: #7a7168;
+      line-height: 1.8
+    }
+
+    .doc-item-detalhe span {
+      color: #08172E;
+      font-weight: 500
+    }
+
+    .doc-item-valor {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      color: #CC7D51;
+      margin-top: 0.75rem
+    }
+
+    .doc-total-box {
+      background: #08172E;
+      border-radius: 6px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 1.5rem 0
+    }
+
+    .doc-total-label {
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #D9B59D;
+      font-weight: 500
+    }
+
+    .doc-total-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      color: #fff
+    }
+
+    .doc-condicoes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1.5rem
+    }
+
+    .doc-cond-card {
+      border: 1px solid #ebebeb;
+      border-radius: 5px;
+      padding: 1rem 1.25rem
+    }
+
+    .doc-cond-label {
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #7a7168;
+      font-weight: 500;
+      margin-bottom: 4px
+    }
+
+    .doc-cond-val {
+      font-size: 13px;
+      color: #08172E
+    }
+
+    .doc-footer {
+      text-align: center;
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #ebebeb;
+      font-size: 11px;
+      color: #7a7168;
+      line-height: 1.8
+    }
+
+    .doc-footer-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 14px;
+      color: #08172E;
+      margin-bottom: 3px
+    }
+
+    .doc-ornament {
+      color: #d8d0c5;
+      letter-spacing: 0.3em;
+      font-size: 14px;
+      margin: 1rem 0
+    }
+
+    @media print {
+
+      /* mostra APENAS o documento da proposta */
+      .nav,
+      #page-orca,
+      #page-config,
+      #page-entrada,
+      .proposta-form-card,
+      .proposta-btn-imprimir,
+      .proposta-resumo,
+      .print-header,
+      #proposta-form-area,
+      .btn-gerar,
+      #doc-acoes {
+        display: none !important
+      }
+
+      #page-proposta {
+        display: block !important
+      }
+
+      .proposta-wrap {
+        padding: 0 !important;
+        max-width: 100% !important
+      }
+
+      #proposta-print {
+        display: block !important
+      }
+
+      body {
+        background: white
+      }
+
+      /* compacto para caber em 1 página */
+      .doc-wrap {
+        padding: 1.5rem !important
+      }
+
+      .doc-header {
+        margin-bottom: 1.5rem !important;
+        padding-bottom: 1rem !important
+      }
+
+      .doc-num {
+        margin-bottom: 1rem !important;
+        font-size: 18px !important
+      }
+
+      .doc-cliente-name {
+        margin-bottom: 1rem !important
+      }
+
+      .doc-item {
+        padding: 1rem !important
+      }
+
+      .doc-total-box {
+        margin: 1rem 0 !important;
+        padding: 1rem 1.25rem !important
+      }
+
+      .doc-condicoes {
+        margin-top: 1rem !important;
+        gap: 0.75rem !important
+      }
+
+      .doc-cond-card {
+        padding: 0.75rem 1rem !important
+      }
+
+      .doc-footer {
+        margin-top: 1.5rem !important;
+        padding-top: 1rem !important
+      }
+
+      .doc-ornament {
+        margin: 0.5rem 0 !important
+      }
+
+      .doc-total-val {
+        font-size: 22px !important
+      }
+
+      /* cores no print */
+      .doc-total-box {
+        background: #08172E !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact
+      }
+
+      .doc-item {
+        background: #F7F4EF !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact
+      }
+    }
+
+    #proposta-print {
+      display: none
+    }
+
+    /* ── FORMAS DE PAGAMENTO ─────────────────────────────────── */
+    .pgto-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.5rem;
+      margin-top: 1.25rem;
+    }
+
+    .pgto-title {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+      margin-bottom: 1rem;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .pgto-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 1rem;
+    }
+
+    .pgto-entrada-row {
+      margin-bottom: 0;
+    }
+
+    .pgto-select-row {
+      margin-bottom: 0;
+    }
+
+    .pgto-entrada-row label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .pgto-entrada-row input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border2);
+      border-radius: 3px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      background: var(--white);
+      color: var(--navy);
+      transition: border-color 0.2s;
+    }
+
+    .pgto-entrada-row input:focus {
+      outline: none;
+      border-color: var(--gold2)
+    }
+
+    /* bandeiras */
+    .pgto-bandeiras {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .pgto-band-btn {
+      flex: 1;
+      padding: 8px 6px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--cream);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Poppins', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .pgto-band-btn:hover {
+      border-color: var(--gold2)
+    }
+
+    .pgto-band-btn.active {
+      border-color: var(--gold);
+      background: var(--navy);
+      color: var(--gold2)
+    }
+
+    /* select dropdown */
+    .pgto-select-row label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .pgto-select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      background: var(--white);
+      color: var(--navy);
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a8c7a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      transition: border-color 0.2s;
+    }
+
+    .pgto-select:focus {
+      outline: none;
+      border-color: var(--gold)
+    }
+
+    /* resumo */
+    .pgto-resumo {
+      margin-top: 12px;
+      padding: 14px 16px;
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .pgto-resumo strong {
+      color: var(--navy);
+      font-weight: 500
+    }
+
+    .pgto-resumo .pgto-destaque {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      color: var(--navy);
+      font-weight: 400;
+      display: block;
+      margin: 4px 0;
+    }
+
+    .pgto-resumo .pgto-avista-badge {
+      display: inline-block;
+      font-size: 8px;
+      padding: 2px 7px;
+      border-radius: 2px;
+      background: #e8f2ec;
+      color: var(--green);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 500;
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+
+    /* taxas config */
+    .taxas-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .taxas-title {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+      margin-bottom: 1rem;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .taxas-band-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .taxas-band-tab {
+      flex: 1;
+      padding: 7px 6px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--cream);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Poppins', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .taxas-band-tab:hover {
+      border-color: var(--gold2)
+    }
+
+    .taxas-band-tab.active {
+      border-color: var(--gold);
+      background: var(--navy);
+      color: var(--gold2)
+    }
+
+    .taxas-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .taxas-field {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .taxas-field label {
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .taxas-field input {
+      width: 100%;
+      padding: 8px 6px;
+      border: 1px solid var(--border2);
+      border-radius: 3px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      background: var(--white);
+      color: var(--navy);
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+
+    .taxas-field input:focus {
+      outline: none;
+      border-color: var(--gold)
+    }
+
+    .taxas-saved {
+      font-size: 10px;
+      color: var(--green);
+      font-style: italic;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .taxas-saved.show {
+      opacity: 1
+    }
+
+    @media(max-width:720px) {
+      .pgto-card {
+        padding: 14px
+      }
+
+      .pgto-select {
+        padding: 13px 14px;
+        font-size: 16px;
+        border-radius: 8px
+      }
+
+      .pgto-entrada-row input {
+        padding: 13px 14px;
+        font-size: 16px;
+        border-radius: 8px
+      }
+
+      .pgto-bandeiras {
+        flex-wrap: wrap
+      }
+
+      .taxas-card {
+        padding: 14px
+      }
+
+      .taxas-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px
+      }
+
+      .taxas-field input {
+        padding: 10px 6px;
+        font-size: 14px;
+        border-radius: 6px
+      }
+
+      .taxas-band-tabs {
+        flex-wrap: wrap
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-brand">
+      <img
+        src="logo.jpeg"
+        alt="Vanessa Rodopoulos" style="height:40px;width:auto;display:block">
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="goTo('orca')">Orçamento</button>
+      <button class="nav-tab" onclick="goTo('hist')">Histórico</button>
+      <button class="nav-tab" onclick="goTo('config')">Configuração</button>
+    </div>
+  </nav>
+
+  <!-- ══ ORÇAMENTO ══ -->
+  <div class="page active" id="page-orca">
+    <div class="split-wrap">
+
+      <!-- ESQUERDA -->
+      <div class="split-left">
+        <!-- <p class="page-eyebrow">Calculadora</p>
+        <h1 class="page-title">Orçamento<br><em>personalizado</em></h1> -->
+
+        <!-- cotações -->
+        <div class="pill-row">
+          <h1 class="pill-row-title">Calculadora de orçamento</h1>
+          
+          <div class="pill-row-prices">
+            <div class="pill">
+              <div class="dot dot-gold"></div>
+              <span class="pill-label">Ouro 24k</span>
+              <span class="pill-val" id="gval">buscando…</span>
+              <span id="gbadge"></span>
+            </div>
+
+            <div class="pill">
+              <div class="dot dot-silver"></div>
+              <span class="pill-label">Prata</span>
+              <span class="pill-val" id="sval">buscando…</span>
+              <span id="sbadge"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- cotação manual (fallback) -->
+        <div class="manual-box" id="manual-box" style="display:block">
+          Cotação indisponível — insira manualmente (R$/g):
+          <div class="row2" style="margin-top:10px">
+            <div>
+              <div class="manual-sub">Ouro (R$/g)</div>
+              <input type="number" id="manual-gold" placeholder="ex: 858" step="0.01"
+                oninput="goldPrice=parseFloat(this.value)||null;calc()">
+            </div>
+            <div>
+              <div class="manual-sub">Prata (R$/g)</div>
+              <input type="number" id="manual-silver" placeholder="ex: 13.79" step="0.01"
+                oninput="silverPrice=parseFloat(this.value)||null;calc()">
+            </div>
+          </div>
+        </div>
+        <p style="font-size:10px;color:var(--muted);text-align:center;margin:-12px 0 16px;letter-spacing:0.05em"><span
+            id="cotacao-data"></span></p>
+
+        <!-- CARD 1: NOME -->
+        <div class="input-card">
+          <div class="field">
+            <label>Nome do cliente</label>
+            <input type="text" id="campo-cliente" placeholder="Nome do cliente"
+              oninput="clienteNome=this.value.trim()">
+          </div>
+        </div>
+
+        <!-- CARD 2: METAL / PESO -->
+        <div class="input-card">
+          <div class="row2">
+            <div class="field">
+              <label>Tipo de metal</label>
+              <div class="sel-wrap">
+                <select id="metal" onchange="onMetalChange()">
+                  <option value="">Selecione…</option>
+                  <option value="ouro">Ouro</option>
+                  <option value="prata">Prata</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label>Peso da peça (gramas)</label>
+              <input type="number" id="grams" placeholder="0,00" min="0" step="0.1" oninput="calc()" lang="pt-BR">
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 3: PEDRAS -->
+        <div class="input-card" style="margin-bottom:0">
+          <div id="no-stones-msg" style="display:none">
+            <p class="no-stones">Nenhuma tabela de pedras carregada.</p>
+            <span class="goto-config" onclick="goTo('config')">Ir para Configuração →</span>
+          </div>
+          <div id="stone-fields">
+            <div id="stones-list"></div>
+            <button type="button" id="btn-add-stone" onclick="addStoneBlock()"
+              style="display:none;margin-top:4px;padding:6px 12px;border:1px dashed var(--border2);border-radius:3px;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;color:var(--muted);background:none;cursor:pointer;font-family:'Jost',sans-serif;transition:all 0.2s">+
+              Adicionar pedra</button>
+          </div>
+        </div>
+
+      </div> <!-- Fim split-left -->
+
+      <!-- DIREITA: RESULTADO -->
+      <div class="split-right" style="background: var(--cream)">
+        <div class="result-card">
+          <p class="result-eyebrow">Preço</p>
+          <p class="result-total" id="total">R$ —</p>
+          <div class="breakdown" id="breakdown" style="display:none"></div>
+          <div class="ornament">✦ &nbsp; ✦ &nbsp; ✦</div>
+        </div>
+        <button class="btn-gerar" id="btn-gerar" onclick="abrirProposta()">Gerar orçamento</button>
+
+        <!-- FORMAS DE PAGAMENTO -->
+        <div class="pgto-card" id="pgto-card" style="display:none">
+          <div class="pgto-title">Pagamento</div>
+          <div class="field" style="margin-bottom:1.5rem">
+            <label style="color:var(--navy)">Método de Pagamento</label>
+            <div class="sel-wrap">
+              <select class="pgto-select" id="pgto-method" onchange="onPaymentMethodChange()">
+                <option value="debito">A vista - Débito/Pix (10,55% de desc.)</option>
+                <option value="credito" selected>Crédito / Parcelado</option>
+              </select>
+            </div>
+          </div>
+          <div class="pgto-grid" id="pgto-details-grid">
+            <div class="pgto-entrada-row" id="pgto-entrada-row">
+              <label style="color:var(--navy)">Entrada (R$)</label>
+              <input type="number" id="pgto-entrada" placeholder="0,00" min="0" step="0.01" oninput="calcPagamento()">
+            </div>
+            <div class="pgto-select-row" id="pgto-select-row">
+              <label style="color:var(--navy)">Parcelamento</label>
+              <div class="sel-wrap">
+                <select class="pgto-select" id="pgto-select" onchange="calcPagamento()"></select>
+              </div>
+            </div>
+          </div>
+          <div class="pgto-bandeiras" id="pgto-bandeiras"></div>
+          <div class="pgto-resumo" id="pgto-resumo" style="display:none"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ HISTÓRICO ══ -->
+  <div class="page" id="page-hist">
+    <div class="split-wrap">
+      
+      <!-- ESQUERDA: FILTROS -->
+      <div class="split-left">
+        <p class="page-eyebrow">Relatórios</p>
+        <h1 class="page-title">Histórico de orçamentos</h1>
+        
+        <div class="input-card">
+          <div class="sec-title" style="margin-bottom:10px">Busca e Filtros</div>
+          <input type="text" id="hist-search" placeholder="Buscar por cliente..." oninput="filterHistory()" style="margin-bottom:15px">
+          
+          <div class="row2">
+            <div class="field">
+              <label style="font-size:9px">De</label>
+              <input type="date" id="hist-date-start" onchange="filterHistory()">
+            </div>
+            <div class="field">
+              <label style="font-size:9px">Até</label>
+              <input type="date" id="hist-date-end" onchange="filterHistory()">
+            </div>
+          </div>
+        </div>
+
+        <button onclick="loadBudgetHistory()" class="btn-gerar" style="font-size:11px; padding:12px; background:var(--navy2); border-color:rgba(255,255,255,0.2)">Atualizar lista</button>
+      </div>
+
+      <!-- DIREITA: LISTA -->
+      <div class="split-right" style="background: var(--cream)">
+        <div id="hist-list" style="display:flex; flex-direction:column; gap:14px; margin-top:50px">
+          <p style="text-align:center; color:var(--muted); font-size:13px">Carregando histórico...</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ CONFIGURAÇÃO ══ -->
+  <div class="page" id="page-config">
+    <div class="split-wrap">
+      
+      <!-- ESQUERDA: PEDRAS -->
+      <div class="split-left">
+        <p class="page-eyebrow">Ajustes</p>
+        <h1 class="page-title">Configurações</h1>
+        
+        <div class="input-card">
+          <div class="sec-title" style="margin-bottom:10px">Tabelas de pedras</div>
+          <p class="config-sub" style="font-size:12px; margin-bottom:1.5rem; opacity:0.8; line-height:1.4">Preços base para diamantes e moissanites integrados à calculadora.</p>
+          <div class="stone-cards" id="stone-cards"></div>
+        </div>
+
+        <div class="config-hint" style="background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.4); color:var(--navy); padding:1.25rem; border-radius:12px; backdrop-filter:blur(10px)">
+          <strong>🔒 Gestão de Dados Protegida</strong><br>
+          Para atualizar preços ou taxas, envie os novos valores aqui pelo chat. Eu (Antigravity) farei a atualização com precisão absoluta.
+        </div>
+      </div>
+
+      <!-- DIREITA: TAXAS -->
+      <div class="split-right" style="background: var(--cream)">
+        <div class="input-card" style="margin-top:50px; background:rgba(255,255,255,0.4); border-color:rgba(255,255,255,0.5)">
+          <div class="sec-title" style="margin-bottom:10px">Taxas da maquininha</div>
+          <p style="font-size:12px; color:var(--navy); opacity:0.8; margin-bottom:1.5rem; line-height:1.6">
+            Configure as porcentagens para cada bandeira e parcelamento.
+          </p>
+
+          <div style="background:rgba(255, 255, 255, 0.3); padding:1rem; border-radius:8px; border:1px solid rgba(255,255,255,0.4); margin-bottom:1.5rem">
+            <div style="font-weight:600; color:var(--navy); font-size:13px; margin-bottom:8px; display:flex; align-items:center; gap:6px">
+              <span>🔒</span> Cfg. Supabase
+            </div>
+            <div class="field">
+              <label style="color:var(--navy)">Taxa Base (%)</label>
+              <input type="number" id="cfg-card-tax" step="0.01" readonly style="background:rgba(255,255,255,0.5); cursor:not-allowed">
+            </div>
+          </div>
+
+          <div class="taxas-band-tabs" id="taxas-band-tabs"></div>
+          <div class="taxas-grid" id="taxas-grid" style="margin-top:10px"></div>
+          <span class="taxas-saved" id="taxas-saved" style="margin-top:8px; display:inline-block">✓ Taxas salvas</span>
+        </div>
+
+        <div class="calc-memory" id="calc-memory-box" style="display:none; margin-top:20px">
+          <div class="calc-memory-title" style="font-size:11px; color:var(--navy); opacity:0.6">Memória de cálculo</div>
+          <div id="calc-memory-rows"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PROPOSTA ══ -->
+  <div class="page" id="page-proposta">
+    <div class="proposta-wrap" style="background: var(--gold); min-height: 100vh; padding: 3rem 2rem;">
+      <div style="max-width: 800px; margin: 0 auto; background: rgba(247, 244, 239, 0.4); backdrop-filter: blur(15px); padding: 3rem; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 8px 32px rgba(0,0,0,0.05)">
+
+        <!-- formulário -->
+        <div id="proposta-form-area">
+          <p class="page-eyebrow" style="margin-bottom:6px">Proposta Comercial</p>
+          <h2 class="config-title" style="margin-bottom:0.5rem">Finalizar orçamento</h2>
+          <p class="config-sub">Preencha os detalhes finais e gere o preview A4.</p>
+
+          <div class="proposta-resumo" style="background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.4); border-radius:12px; padding:1.5rem; margin-bottom:1.5rem">
+            <div class="proposta-resumo-title" style="color:var(--navy); font-weight:600">Resumo do cálculo</div>
+            <div id="proposta-resumo-linhas" style="color:var(--navy)"></div>
+          </div>
+
+          <div class="proposta-form-card" style="background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.4); border-radius:12px; padding:1.5rem; margin-bottom:1.5rem">
+            <div class="proposta-form-title" style="color:var(--navy); font-weight:600">Detalhes da peça</div>
+            <div class="field">
+              <label style="color:var(--navy)">Nome da peça</label>
+              <input class="proposta-input" id="prop-nome-peca" type="text" placeholder="Ex: Anel Solitário Tiffany" style="background:rgba(255,255,255,0.3); border:1px solid rgba(255,255,255,0.4)">
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label style="color:var(--navy)">Imagem da peça (opcional)</label>
+              <div id="img-upload-zone" onclick="document.getElementById('prop-img-input').click()"
+                style="border:1.5px dashed rgba(8, 23, 46, 0.3); border-radius:8px; padding:1.25rem; text-align:center; cursor:pointer; transition:all 0.2s; background:rgba(255,255,255,0.2)"
+                onmouseover="this.style.borderColor='var(--navy)'" onmouseout="this.style.borderColor='rgba(8, 23, 46, 0.3)'">
+                <div id="img-preview-wrap" style="display:none">
+                  <img id="img-preview" style="max-height:140px;max-width:100%;border-radius:4px;object-fit:contain">
+                  <div style="font-size:11px;color:var(--muted);margin-top:6px">Clique para trocar</div>
+                </div>
+                <div id="img-placeholder">
+                  <div style="font-size:20px;color:var(--muted);margin-bottom:6px">📎</div>
+                  <div style="font-size:12px;color:var(--muted)">Clique para anexar foto ou render da peça</div>
+                </div>
+              </div>
+              <input type="file" id="prop-img-input" accept="image/*" style="display:none"
+                onchange="previewImagem(event)">
+            </div>
+          </div>
+
+          <div class="proposta-form-card" style="background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.4); border-radius:12px; padding:1.5rem; margin-bottom:1.5rem">
+            <div class="proposta-form-title" style="color:var(--navy); font-weight:600">Condições de entrega</div>
+            <div class="field" style="margin-bottom:0">
+              <label style="color:var(--navy)">Forma de envio</label>
+              <div class="sel-wrap">
+                <select class="proposta-select" id="prop-envio" style="background:rgba(255,255,255,0.3); border:1px solid rgba(255,255,255,0.4)">
+                  <option value="Retirar pessoalmente">Retirar pessoalmente</option>
+                  <option value="Envio pelos Correios">Envio pelos Correios</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <button class="proposta-btn-imprimir" onclick="imprimirProposta()" style="width:100%; border-radius:12px">Visualizar orçamento</button>
+          
+          <div class="no-print" style="text-align:center; margin-top:1.5rem">
+            <span onclick="goTo('orca')" style="font-size:11px; color:var(--muted); text-decoration:underline; cursor:pointer; letter-spacing:0.05em">← Voltar ao orçamento</span>
+          </div>
+        </div> <!-- fim do container interno proposta -->
+
+      <!-- documento imprimível (oculto na tela, visível no print) -->
+      <div id="proposta-print">
+        <div class="doc-wrap">
+          <div class="doc-header">
+            <div>
+              <img
+                src="data:image/jpeg;base64,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6dKjc8888888888888888888888888888888888j8C8zl8nCs9BZI8YJ8888AgctU+88858CA8M8SWIXg888888888888888888888888888888888888888888888884P8APPPPPPPPPPPPPPPE/PPPPPPPPPPPPPPPPPPPPPPPPPPPPP/EADURAAIBAgQEAwUHBQEAAAAAAAECAAMREBIhMQQyQVETICJAUGGRsSMwM3HB4fAUQlKB0WD/2gAIAQIBAT8A92ombraVKeS3si02bUCMpU2Pvityr7JSYq1pX5vuqblTK5IAIxQkH0yrULH4e2UGJuDGqNfeeI3eKRU0beMpU2P3NblX2ROYSvzfdp66dsU0u3tvD7mHfAGxnEDY/c1uVfZE5hK/N93QaxtKy5WwbRQMKdPMMx2mdRsIAlTQaGEW0lIIdDKiqpvBUA/tENNXXMmCIXNhGKpoBeBkbRhHQobSnTzmF1GwiZHOotHFmIiIAudp4g/xECoykjeAXNhCq099TBUU7iVKYX1Lt5OH3MO+FNMxudpVfMdNoqljYQ5V0GszjqIyC2ZdsFp6Zm2niDoIAH02MrCygYZAgu08QdhAFfQaGEW0lNabRkCH1fKZx2mQOLp8sEQtr0mZRyj5wOp5h8o6Zdekp5P7pWQLa2FPIdDKyhWsInMJX5oBCqpzameJ8BAgcen5YU6YIzNtM46KIio+2+INjeVhmUMIoubRjc3wznLl6QU2PSUwqt3MrD1ynzCVufDhzqRHFmMX0U74sL0heUHCmxjUOqxkZd4xLG5lMh0yGNQYbQXQxWKm4mrmeHbm0gsaRA8nD7mFxfaK6HS1pUzjRsEGSmTjQOpEKevLOINgBgJxGwlBbtKpu5wU2N5xC9Zw/NKpu5womzSstmlQZKYUY0hmplcOI6YJzCV+aJzCV+acOut45uxOFI2YSutmv3lFgVyGNw5G09SHyUjmTKYBlBONhSW/WM7NvKfMJW55T5hK3PhQ5o/MZm+yuJ4rTxWjOW3lotRl2MStm0aVUytYS1otZhFZaosZTp5jr0j1belNME/CPk4fcw74U/tEKnphvSx4fmhb7S84jpjX5ROHOtpU5jgN5xB0AnD80qcxwo84lc+qV9VBxoaKThxGwOCcwlfmlPmEr804c6EQ74Ux6hOIOoGC1mWLUFT0kT+nONFrNbvK5GawwGkqL4igrMp2tKa5SC0rob5pSQlgZXU5r4UFOa8qIQxMpPl0O0akRqNRAjHYRwF0EpgFCDDTZekp0ze50lVgzXEZMyi29pkbtKY8MZmlBxcg9Y9NlMCExQGTKsII3x4cHUxlKnXCk+VtZVQqb9JSe3pOxjUyNtoFJ2Ev4Qt1wBFVcvUQow3EROraCVlLAEQEqbx18T1LMp7REy+p9I75zecPzSquY5lljEHhjM28JubmIwZcjRkZdxFps20dwFyLgtqiW6woRoREWxBaV1N7iUlJYGV0N7iI+Q3jpm9SbTKe0QeH6mjMWNzMoamB1hRh0lNcvrbSeM3nDFdoaj95czM3eBiNjM7d8M7d4WJ3OAYrtDUY7nEOy7GFi2+IqP3hJO+AqMOsLFtzAxGxhJO+Odu8JJ3xzG1r4Biu0NRj18gqOOsLE7zO3fAG208R+8JJ3w4fmjEhjaeK/eE33xDsNjC7Hc4gkbTxH7y53mdu8DEbGZ274AkbTxX7w4iow6wknf3tw/NH5j/4xa2XQAR6mbp7rDAkjt5ybaxWDC42+8ZgoJP3DsEFz5XcILn3U7hBefa76fz4/tKLZnY/lgGd9U0EVzmythmdicmgERibhtxDKbZ0Dd47hBefa76fz4/tKdXOxXtbBKj1BddIrtmyNv5S7McqdOsrsy02zdt4No75dBuZ9qNdP58f2iMHXMPJUfItx8MHfLZVGphNVddDFYMAwlR8i3Hw+uDvlsq7mXqDU2MpVPEXN8THcIpaE1QM2n5fv+0BuL+46uhVjsD+hwpEGo9vhDqJRVjTFm6fCZfWuZrnDICSyG0RiSVbpDtKH4S/kPpK2hUnv/0YUiDVe3w/XDh/wx/Osf8AEX/f6eWjpmB3vOKIFJr9oNpVB8Rdbb/pMj/5fSUQMlxrv5K/4fy+ow2q69RNpQ5L/wA3lfk/2PqMDpV16ibThjdLjufrHy5fVtCroLqbj4/9itmUN39xkAixngja5t+cVFU3GBpC9xpFphdcDSBNxpEQJtgqhQFHSVCApLaiCkLaE2/OUgMzFdtB8sFUKLCFQSCenlamGN+s8FSNdcGUMLGeCDoSbQC3kr8ny+owZA4sZ4IPMScGUMLHBkDixnhDqbxVC6CMARYzwRaxJt7w8BO31+kAAFh7Caakhj7d/8QANxEAAQMDAgIGCAYCAwAAAAAAAQACEQMSMRAhQVEgIjJhcbEEEzBAUIHh8CMzkaHB0RTxQlJg/9oACAEDAQE/APhrjCY+73QvAygZ+MU8n3R4kSqXZ9k5oIVMAnfUgcUxsD3yoANwgwQrRyRBbuMIGRPsaeT7o7BVLs+zPVdOruXvtVDGhVI5HsaeT7o7BVLs+zqjaUwyNBuZ0c6NgrTxKJLM4WU8uG4TCSEWnmg4tMHRzrUA47lEOG4TXXJ7rQg08SnXAbJpkJzt7QrTzRLgRKJhAud3BFp4FNdOxz0KqGNHugJjbQi6NygCc7K080HbwdC7e0K08SjLVTydLrjAVveiS3OEDKeXBAl2FaeauIMO0c6FBOSi08CmulOngqZJzo+4YVMyN07BVLs6Al2MK3vVxbnRziDAVp5pxc3UiRCpmDCJgICBpaJlFwCdJCp9lOwVT7OlUbJuAj1nxqO3sqjZTanNBwdhAQICeC11wQqjitnBESIWzQrpwt7xPQqoN70Q7mmWnGjus+NanNXdWVSGTrSyVUMBMEDQiQqR4KrhMENGlQbJhkJnWdOr9nTpS46OwqXZTsFUuyqp2hNECNHiQqZkKoCDcEKo4rZw6D+q6QsxrJeY4INAwnYKp9lOwVT7OlTspuAo66sCtCDQMaFgKdTjcJjrgso02lEGnuE98BNZO7tD2x0KqGNHdR06YfrVwgOpCpa08lVcJmNCqQ3lVcJuBo/sqnhU9jGtTd0aUskaOwqXZT+yVS7KqjCGjsFUhtoWAotLNwvWDWoJCpjbQphsMFSE8yNlTIiE9wAVNwiNKhEQmOBCe2dwmvByi4BNJKfIdsg4FOcMBMbAhB1pM4UhON2wVRuwTXghFwCJIdJQM61SmmRo9shMdIhPbO4TXgokBReZ4aRYZ4IEHCc7gMqmbTBRAITTbsVITnTsE1tohVcJhgQVKd19ggIEJwg3BBwOEXAJrZNx0PUdKDgU52xAVNwiE8wFTIiE5twhNdGxUhON+wQECFMOKuHNPdOwXqx0yAVYOShWjkoHJWjlpaOSAAxoWgq0DUtBQAGNbG8kBGlgQAGEQCgIxraOSgDWBoWgoMA6FgQAGFaOWmVY1ARjSrhASArG8lEaloKDQMaxKsaoVo5KByVo5aESrG9CwIADHxarhNwP/GFk8U1tvwstIAPPpgTsnNLDacj2jWl7g0ZPsGMLza3osYXm1vwqnTvML8HG/jt5fVVmW02Dx/jQsZT2fJPLEeacxpbez592ljGAF8knlt/aqMaILTsUFVZ6t5aOBhU2F5hfg438dvL6qrR9WxrpzP8AGlSlTpOh0nw/0nsbbezHfw6Ipta0OqccAfey9GYx1Vtm0EbFFU6d0k7AL8E7bjv+n1T2FjrT0KTA91p7/LSnTDgXOMAfcICi7bcd+f6T2lji05CpMD3Qe/8AYTpTphwLnGAFFJ2wkeOPJVqfqnW+HkqbDUcGjigKJNokd/0+qIgx8Do7te0ZI8iD5aVgW0mA96GxCrvaKjpbx70HTTda2Bjjz+ml5aA2o2Rw5/qqjGhoe3B/hDK9J/Of4nzVDcPaMkfyD5aVWltFk9/8aek/mH5eQTPynfL+ejX3tdwgftsV6I0ms2OaKpEeqcInB81ez/p5quTfDhER5dD0b8z5HyOg3o7cDp6R245AD9AAvRu38j5HQb0THA6elAh8HkPIKndd1MoOp1DDmx4f1/UJ7bHFp4fA2ktMjK9ecwJ8PsfsnVHOEHQViBaRI70+o54g4GjaxADSJA5p7y/Oj3F5Ljkqk1zngNMFGsZkgT4fY/ZVibGh2dz+v+tHPLzJQcQC3geiyq5gt4IV3Ai3aNGuLDLcr15G4AB8Fnc9D0f8z5HyOjXuYZavXkbtAB7vvb5aMeWGRox7mGWr1x/4gDw+/JOeXGT9wmuLTIyvXmZAE84+x8Q/yKnP9hP6okuMn3EVHNFo4+/f/8QATxAAAQMBBAMJDAYJAgYDAQAAAQIDBAAFERIhBhAxExQgIjI1QVFxIzM0QlJhcnOBkbHBFTBTYqHRJEBDUFRggqLwFpIlVWNwsvGAk+GD/9oACAEBAAE/Av5cdmRme+Ptp7VUkhSQRmD/ANlncRbVueS7sqtKJaiUlclS3G+khV492qH4Ix6A+H7ntS0mrPCN0SpRXsAp7SZ095YQn0jfVhWpJm2gUPKGDATcB/NxzFxqc3uMx9sbErIFQ/BGPQHw/c78dmQm59tKx5xVv2WIKkuM95Xld5JrRTnM+rPy/U1EJF6jcK3Zr7RHvrdmvtEe+t2a+0R/u4W7NfaI99bs19oj30lSVDikHs/e5dbBuLiPfW7NfaI99bs19oj31uzX2iPfW7NfaI99JWhXJUk9h/VbX50k+mah+CMegPh+6NJUg2Q55iD+NaKc5n1Z+X6nLjtymS08L0GrdsgQUh1gktE3EHo1RNHo24ILxWtZGdxypIwpAGwcF/R6IsKwFxCuu+rGsvf0hwOEhpvaU9dQITUFooYvuJvN5/e8+wWH90WyVIePG25E0QUkg7RVj2E2/GS/KUrj5hKeqv8AT8HyV/7q/wBPwfJX/upzRyIeQt1B7afZtOyeO08p1ge38Ksm225hDbw3N78Ffqdr86SfTNQ/BGPQHw/dGknM739PxrRTnM+rPy/VJ8cSobrJ8YZdtEEEg7RWj0nfFmN38pviHhWvJ3rZ7znjXXJ7asSLvSzm0kcdXGV2/vmd4bI9Yr41ZnN0X1SfhwdI7NEVwSGBc0s5geKa0dtLfbW4vHuyOnyh+pWvzpJ9M1D8EY9AfD90aS8zvdo+NaKc5n1Z+X6rpHG3vaSiOS7xxWiknc5imTsdGXaOFav6XakSF4ie6uf5/m399TvDpHrFfGrN5ui+qT8ODarO72c+j7t47agvmLLaeT4pz7P1K1+dJPpmofgjHoD4fujSXmh3tHxrRTnM+rPy/VdKY26wA6OU0fwqO6WH23U7UG+mlh1pDiOSoXjgHIZ1YX6TJlzleOrAjs/y799TvDpHrFfGrN5ui+qT8OC53tV/Vqi+DNX7cI/UbX50k+mah+CMegPh+6NJeaHe0fGtFOcz6s/L9VebDrS218lQuNPtKZfW0rag3VotJ3WBuR5TRu9nAt+RuFmrw8tziCrOj71hMs9KRn28CfaEeCnuyuN0JG005b8uQ5ghsAezEaMq3QL8Dl3qxTWkMtpeGQ2lV20XYTVnWixPT3I3LG1B267RtNiBhD2IqOYCRT2kx/Yxx2qVVg2m/PlOJewBITeAkVPtWNDOFRxu+QnbTlpWq9nHhFtPnTeaftS12O/YkdrQqNpHIQe7oQ4nzZGoMxqazujBy6R0jgzrfjsKKGRuyvNspFo2vJGKPGAR0HD+dO2lbEbN5ni9ZRlUPSRKiEy28H3kU2tLiAttQUk7CNcqQ1FaLj6sKac0gfecwQI2LtzPuFb5t3buA/2ik27KjqunRLuwYal6QMJiY4vGdJ5ChsqzpG+oTTxuvUM7tdo28xGUW2Ruzg8+QpM+2ZAxMxgE9HF/OjaNsR83ouJPoflUPSGM7k+Cyr3irLtgzbQcZwpDdxKD0nXOnx4KL31Z9CRtNO6QSn14ITAHsxGjKt26/A5/9YpvSCYyvDIbSq7aCMJqzbSYnp7mbnBtQdv1M7w6R6xXxqzebovqk/Dg2xIEaznl9JGFPaas+MZcxpkdJz7OBaFqxoPFWcTnkJoWraMrwOFcjrVnW6W/9kj+386+mZ8U/p0Ti9YF1WfaUecO5KuX0oVt4NoWnHg5Oqvc8hO2vpm0JZO8Y1yeu6+grSDbgSfNxKTa8qNzjDUlPloFRZLUpvGwsKTVr86SfTNQ/BGPQHw4E23o7C8DIL6/u7PfW/bZfzZiBCfOPzovW8nMsoPu/Om7fdZXgtCKUecZfgaiyWpTeNhYUnXKt2GwpSeO4oZcUU9pMr9jHA9I1Zj6pMFp5y7EodFTbajsL3NoF97yUUZ1sOZtQQgfeFLtO12M3ogw+gag6QsPEJkJ3FXXtFA3i8bOApQQkqUQEjpNSdIGgvc4jSn1/hW+rcezbjJQOy74mjIt1rNTCVewH4Go+kNy9znMKaV1j8qacQ62FtKCkHpGp5xLLSnHDchIvNP6SMJ7yytfblR0ikrcSENtoBPbwLQnswEpL+LjbABT2kyf2Mc9qlVY1ryJ0/c3A2lGEnijXpLzQ72j41opzmfVn5cB1xDSCtxQSgbSae0gCl7nBjreVW+LdczTHQgewfE0ZVuM5rjpWOy/4GomkLZXucxosq6+ikKStIUghSTsI4Fp2sxB4p47vkD50i1bUl5xIwwdeG/8aMy22s1x8Q9C/wCFRdImyrBLaU0rrGdfTgXarcdnAphRCcfB0rjbnNS8Njo/EVo3J3C0kpPJd4n5cCX+mW+wx+zjjdFdv+XcC2JwgRCva4rJAqIw9ak64qJUrNaz0VCiMw2tzYTd1npOqfZ7E1FzyON0KG0VKYfsmeLlXKGaVjpFWZMTOiJdTkdih1HVJhx5RBfaSsjrrSCzEQVIWxfuS8rj0GrI30p9TUI4VuC4q8kVZ9msQk3pGN3pcVt1KSFpKVAEHoNaQ2SmON8Rhc14yfJqx5phTUrv7mcljzcC3LXVJUWY5uYG0+XWj1kpwJlSU338hJ+Ou17DbeSXYgCHfJ6FVYtors+TuTt+4k3KSfFPXrtecqdKKr+5jJA81WXCRCiJQkcci9Z6zqWhLiSlaQpJ6DVv2SInd4/eTtHk1oq5iszD5CyNWk09UdhLDRuW5tPUK0WhIfeW+6Lw3yR59drWU1NbJSAh/oV19tWJij200lYuViKCNVrTRAiFzas5JHnqO0/ak67EVLVmpR6BUGGzCZwMp7T0nVOgsTUYXkZ9ChtFTYz1lTRcrMZoWOmrKmidES7sVsUOo/UTvDpHrFfGrN5ui+qT8OBIfajt43lhCfPVpzHbYlpajIUW08lPX56sWzEwGr1cZ9XKPV5tdvWzuBMeKe6+MvyasKyE4BKmDG4rNKVfE6yAoEKF4NW7Zm8yJcK9CQcwPFqwrV36jc3cpCf7tdu2rvJG5M5yFf21YdnG0HlPySS0Dn940hKUJCUAJSNgGoi8Z1a0ddlPibA4qCblo6KmPb4lOPXXYzfdUPwRj0B8NSiEgkm4CrWtV2e9vaHfuROHLaurKspqC2CQFP8ASv8ALXIYakNlt5AWnz1MafsOeFx1Hc1bL+nzGrOmtzo4db/qT1HVKsSG+VKwFC1dKTUthUaS4yvag3UzMkSo8azonEyuUev/APKs+AzBawtJ43SvpOu2rHbktqdjpCZAzy8arDtVUNwMyCdwPX4lDPZqfdQw0p11WFCdpqTLkW3MSw1xWr8k/M1Z8BiC3haTxulR2nXNhMzGsDyb+pXSKbdkWFaCmzxm+kdCh11GfRJZS60b0KpxCXEFCxek5EGrUsOOYq1xkbm4kX5HbTXfUdvAlRWJSQJDYWBsvq3bGajR98RrwkHjJNaLc6f0HXpNzQ52j41opzmfVn5a5kluIwp143JH41jk29PCL8LQzu6EiocRmG1gYRd1npOu0bPZnN3OJuX0LG0VCmP2PMUw9m0Dxk/MU2tLraVtm9KswdVtTN4wVLT3w8VPbVixt/2kA8cSeWvz0AEgBIuA6NU+CxNbwvJz6FDaKfYcs6eEubUKCgevg6RRt8WYu7lN8cUklKgpORGYqG+JMVp4eOL9Tiw22pauSkXmtHUFbb8xzlyF3+zgaR2c9MShxg4ijxKsGDvKEMYueXmr8talBKSVEADpNaSTmpjrYYzS1eMfX/l1aIO90fZ6xi16Vi+zUnqcHzrRDwx70PnwJDSX2FtL5KxdTiC24pCtqTcasd3drMjr6cN3uy1aTyyxCDSDx3svZVlxt9zmmvFJvV2UBcLhs4GlcYNyW30jvgz7RWjkjd7MRfym+JTySplaRtIIogg3HIirJtRqa0kFQS/0p6+zXIZS+wtpfJWLqsKz3bPbdS8pBxG8YdWlyCJrS/FLd341o7aSIbi238mnPG6jSFJWkKQQpJ6Rrn2St61WZbCkJuIK7/Nq0is92a2hbBvU34nXWj8DecS9wXPOZq83m1qISLybhWkk5qWttDHGS3feutEHbpD7XQpOL3f+/qJ3h0j1ivjUORa4iMhqI0psIGE37Rd20qbbSNsFv2Z/OnbfntnC5HbQfvJP51HtG0rQVgafZaPVkKbsBTq8c+Upw9Q/OosVmKjCw2EDXbc3eUFSk98VxU1ZTG+7RabVmCq9XBebS80ttfJULjSVOQ5d6Tc40qob4kxW3k7Fi+pLyY8dx1exAvqQ8uQ+t1w3qUb6s2PvWCy10hOfbwJ7G+YbzXlJy7dUPwRj0B8NWlU4oSmI2eVmvs6q0Tj45Tjx/ZjLtPB0ij7vZbnlN8cVYkww5yST3NfFXr0m53c7B8K0QY4z756OKODpHH3C01FPJcGOtFphejKYWeM1s7NWlE4uyd7IPc29vnNaJR7mHZB2qOEdnB0tj4orb45SFXew1ovNLUre6j3NzZ5jqOw0jlp7eDpDzPI9nxFaLc6f0HXpNzS52j41opzmfVn5a9IZxlTShJ7k1kO3rrRaPuVn7r4zp/Dg6Xx+8yB6B/z31opNIWqIs5HjI1aXIJhsqGxK86sebvGaHCL0EYVdlR32pDYWysLT5tdu2YbQS2WilLqTtV1UykoZQlRvUEgHgEXi47Knx96zHWfJOXZWiUnEw5HO1BxDs1aROkRER2++SFYBUdoMMNtJ2IF3ClWvDjZKdCldSM6c0geeXggxr1efM+6kWXNnkLtR8pR9mmtI4zUayEIYQEJDg+BrRPnJfqz8Rr0q5r/rFaIeGPeh8+DbyNztaQOs3++tGDfZKfMojVpWvFaSU9CUCtEG735DvkpCff8A+uDpZJbWpphBBUi8q81aIpIiPE8kry1W9YylrVJiC8nNaB8RWYPURUa2JrGQdxp6l51E0lBylNXfeR+VRpDUlvGw4Fp82u04KJ8YtryO1Kuo1NhvQ3cD6buo9BqNLfjG9h1SOyo+kclF27IQ4Pcag2xFl3JCsDnkr4Mq1ocblvBSvJRnTmkLrq8EGNeo7MWZ91Is2daBCrTfKG/s01b8VmLY2BhASnGK0V50/oP1E7w6R6xXxqzebovqk/DU62h1GF1CVp6iKtWwBhLsHb9n+VWTbbkZQalkra2XnamkKC0hSDek5gjXpc7fLZa6Eov9/wD6rRJN9orV5LfCtpOG1ZI+/fWibuKAtB8ReVaUuYLLu8tYT8/lUROOUyk9KwPx4UxOCW+nqWR+NQ/BGPQHw1Wu7u1pyFffu92VaJJus9xXW58uDKTjjOp60EarNd3az46ztKBfq0n53c7B8K0UThswnylk8HTBHgy/SHwrRp3c7WbHQsFNLVhQVHoF9OLLjilq2qN5qwE4LIj+cX/jwbfTisiR2A/jTKy06hxO1JvoG8AjWMxwNIuZ5Hs/8hWi3On9B16Tc0r7RWinOZ9WflqmubjDecG1KCdVmJwWdGT/ANMcHShN9lE9Swas13cZ8dY6FjVIZRIYW06L0KFWnZj0BzjDE10LFMvOMKxMrUhX3TUfSGY33zA6POKhW9FkXJd7iv72z30MxlwtLo1zjUgeNxFVYknetpNKPJPFV7dSP03SFSv2cRN39X+fDg2tabdnoz4zx5KKkTZlou4CpSsWxtOyoGjibgqas3+Qn86jx2YyMLDaUDzatK+bB6wVoj4e76v5jXpVzX/WK0Q8Me9D58HSgXWqfOgVotzX/WdWlA/4qr0RViQ5EsPb3kqYw3X3E519Dz/+ZL96q+h5/wDzJfvVX0PP/wCZL/3Kr6EmKyXaK7vafnTOjTSVXvPqWOoC6mWkMtJbaSEoTsA1zrMizM3UXL8tORqVo28jOM4lwdRyNSIMqN35laR19FRpDsZ0OMLKVVY9optBi/kup5SdbzTbyCh1AWnqNTNHGl5xXC2fJVmKkWLOZ/ZYx1oN9KSUKuUCD1GrDtlTa0sSlYmzklR8XVatpNWe3xuM6eSipM+ZaDmAqUcWxtGyoGjmQXNWb/IT+dRozMZOFhtKB5tWlHNSvSFaJc5L9UfiPqJ3h0j1ivjVm83RfVJ+HA0pgBChLaGSsl9vXWi04he83DxTmj8telXOn/8AMVoh4W/6Hz4Vu87Se35Vof3mT6QrS3m9v1vyNWf4fG9Yn48K0+cZXrVfGofgjHoD4apuUx/0z8a0W5r/AKzwXu9L7NVhc0xvR1aT87udg+FaM80t9p+PB0w7xH9I1YXO0bt+VSs4zvoHVY3Ncb0ODbnNMn0dTHeG/RGo7ajnFHbV1pHA0i5nkez/AMhWi3On9B16T80r9IVopzmfVn5arX5rlerOqH4Iz6A+HB0m5pc7R8aY7836Q1qSFJIUAQeg1N0fjPcZgllXmzFSLBmtchKXR900604yrC6hSD1KF1WRazsFYSolcfpT1dlNrS42laDelQvB4Nrxt9We62OVdent1RJ4VYolL2oRxu0Vo8yW4G6ud8fO6HgOrDbS1q2JF5qW+uTIW85ylGtHYCY0VL6x3ZwX9g4GlZ/4YPO4K0Q8Me9D569Kua/6xWiHhj3ofPg6V85j1Y+daM80o7T8dWl7HdGXxsIwGtEXcMt5ry03+7hvOJZaU4s3JSLzUSS1La3RhWJN93A0isptLKpUdOAp5aRsrRlwotZCRsWCD7r9RnMCYIpX3Y9F3AnQWJreF5GfQrpFTGFRZLjK9qDVnPYrLZdcP7O8mpshUuSt5e1R91aN2eliMmQsd1cF48w4GlBuso+dYrRHnBz1XzH1E7w6R6xXxqzebovqk/DgT2N8w3WT4ycu2ozqo8ht1O1BvptYcbStPJULxq0vZ47D/RdgNaJrw2ipPlIPCtJzdZ8hY2FZurRhjcrMCjtcOKrfZ3aynrtqeP7qZXubyF+SoGhmLxwZa90lPL8pZNQ/BGPQHw1W+zuNqPdSzjHtrRJd8F1HSlz5cG0nNys+QvqQaSCpQCcyaiNbhFaa8hIGrSfndzsHwrRVeKzCPJWRwdMHO6Rm+oFX+e6tFmd0tLdOhtN+qWyY8l1o+Iq6tH147JY814/Hg6SuYLJcHlkJqCwZMtpoeMrXJTgkOp8lRFWQvdLMjK+4BwNIuZ5Hs/8AIVotzp/Qdek/NK/SFaKc5n1Z+Wp9vdWXGzsUkppaShakKyUk3GrLXulmxlf9McHSxzDZ6EdKl1YrG+LTYT0A4j7NUucxEU2l9eEr2ZcCQw1IbwPIC0+erZg7wl4Em9tQxJqJaz8eOhpB4qeFbUbetouoHJPGT2GrPccfQLPTyHnAT8/881JASkJTkBlwLVBNmyrvszqhLDkNlSdhQOBpPOEiQlhs3oa2nrNaIqunOp62/nr0rN1mpHW4K0R8Ne9X8+DpXzmPVitGiDZDXmJ+Oq0YqZkRbKunYeo00p2z54URc40rMVFfblMJdaN6VcCTNjRVpS+6lClbL9Vq82SvVmtFJgbeXHWbt0zT28C33UtWU9i8YYRWi7RXagX0NpJ+Wq3nCzb26J2owmoz6JLCHWjelQ4FuOpetV9SMxfd7hW4qasEteOI5Htu1WasOQI6k7MA4GlE4POpjNm9LZvUfPWiarrSUPKbPy+on+HSPWK+NWbzdF9Un4cG2o+9rSeR4pOJPYa0ZkbtZoQTxmjh1WjFTMiLZV07D1Go6nLOtFJWm5bSsxTa0uIStBvSoXg8C15YhwXHL+OckdtWTBVPlBH7MZrV1CkpCEhKRckZAUcxcatqAYMsgDuSs0H5Vo/MEqAlJPdGuKr5cC2JQiQHV38YjCnt1Qs4bHoD4atI7PMuNurQ7q10dYrRmWI87c1m5DuXt6ODpXLCGExUnjLzV2VozZxceEp0dzRyPOdek/O7nYPhWiUkIfcjqPLF6e3gHIZ1a8rftoOLTmnkp7KsGDvKHx++r4yvy1aU2eVfpjQ2ZOfnWicsAuRVnbxkcHSuWHH0R0HJvNXbWjFnlpG+nRxljiDza9IWNwtR3qXxxWiky9Coizs4yPnwNJXUIspxCjxl3BI6860XN1qp86Tr0pN1l9qwK0XVdaqR5SSNek9nlt3fbY4i+X5jWiksLjqiqPGRmns4OkssSZ25oN6Gsvb01o5Z5iMF10XPOdHUNWmPLi9ivlVizEzIKFX90SMK+3gaWupXNbbG1Cc6gWMuREbd2YuFpZGxR25CRmg4T2VolGxPOyDsTxR28Ei8XGrbstUJ0uNi+OrYfJ81WPbC4I3NwY2OrpFR7XhPDJ9KT1L4tLtKEgXmU17FX1MtZ6cre1loVntc/wA2Vallps+ykKJxPqcF6vYcqhSVRJKHkbU9HXUG1YswhLa7nT4iqlzY8S7fDoRf0VpBaaZy0IZv3JHSek1ZcwwZiXbrxsUPNUa1IcnCG3hiV4pyOuTbEKOVJU7iWPFSL6tCUqZLW8rLFsHUK0etREPGzIvDSjeFdRqLLYlgmO4F3bdVsWUiejEnivjYrr7ajvzLGklKkkdaFbFVFt6G8kboosr6lfnX0jDuv30z/vFT9IWG0kRe6r6+gVZFnvTZO/Z95G0BXjf/AJqtXmyV6s1Gs2W/HMhhF6Un2+yrO0gwjcp4IUMsYHxpNqQlC8SW/aak25CZTxXN0V1IFSX5VtSwEIyHJQNiasiz02fHw7XFZrVqtyO5Jt4tNC9SgPhUd+ZYb+B5F7SujoPZUe2oLye+7mepeVLtWCgXmS37M6tW390QWoQIByKz8qsGx1qcTIlJwoGaUHp1W7ZSojpdaTfHV/bVj2uuB3NQxsdXV2VHteE+Mn0oPUvKl2jDQLzKZ9ir6mWw5MVveykKKjtXVo2UmBZWNZxvqWLz1VEfVFkIeb5STUC1oswpShWF0+IrhTLUixUrxOpUseIk504orcUs7VG+rEtWOYTbTziW3Gxh42V9JIUAUm8HpHAt+zd+sBbXf29nnHVVmTXLNl3lJw7FoqJOjSx3B1Kj5PT7tVtWUmejGi5L6dh66gWjIshze8ptRb8npHZTFsQXhk+EHqXlW/4n8Ux/9gqVbsNhPEXuqupFBqZb0nGriMDp6B+dQojUNgNMi4dfXrnRG5sctO7Og9VLal2JMCxs6FeKoVDt6I8kbsdxX1HZW/4f8Ux/vFSbahMJ77uh6kZ1ucu3pIWsblFTs/zpNWg0lia80jkpVcKsa22GoiGZRKVIyCrrxdTDzb7YcZUFIPSNVuWIVqMiGONtU3+VWbb5aG4z0qOHLH0+2m7UhOC9Mlv+o3Uq0IaRnKZ/3ip2kLDaSIg3VfX0VZ9kvz3t82hiCTncdqqQlKEhKBckZADXpPzu52D4Uiynd4R5sIndQLyn8qgW8y4MEvuLoyPVSJLCxeh5sjzKp6fFZF7khse2rWtlUz9HhpVgVkT0qqw7G3uRIlDuvip8nWQCLjmKtax3Yju+IN5QDfcNqKs/SJtSQmaMKvLAyNItGGsZSmfaq6l2lCQLzKZ9ir6tDSAEblZ6SpZyx3fAVZFiKKxIn7doQfnwNILPM2MFNDuzezz+am1uR3gtF6HEGoFvx3UgSe5Ofga+kId1++mP94qTbcdJwRQZDx2JRVpQZC4T860F92ywNjYnOor6o0ht5HKQb6h2zEk4BjwOKywK66kSWY4BfdQi/Zea0itNuZubUe8tpzJ6zUV9UaQh5vlIN9Q7XiSsADmFxWWBXXqcQlxBQsYknIirRsx+zH98wyotjMEbU9tQdIWHEgSxuS+sZik2jDUMpTP+8U5acJsXqktew31aFuqf7hZyF3qyxXZ+yrFsTcSH5mbnio6telySpyIEi8nEPhQZn2K6l7DxTtuzT2GolvQ3kjdFbivqV+dG04QF++mvfVoaQtJQUwxjX5RGQqy7MetF7dn8QaJvUs+NSEhCAlIuSMgOE80h5pTboxIVkRUWM1Fa3NhGFG27hEBQIIvFSbBhPG9KVNH7hr/TLP27nupnR2Gg3rLjnaaYZbYRgZQlCeoCpcVmW2G5CMaQb7r7q+g7P/h/71fnUeyocZ5LrLOFY2HEal2fGmKSqQ3jIyGZFfQdn/w/96vzr6Ds/wDh/wC9X50zZEFl1LjbFy05g4jrcsaA4tS1sXqUbzxjX0HZ/wDD/wB6vzr6Ds/+H/vV+dQ4MeHi3s3gxbcydb7Lb6MDyErT1GntHYazeguN9hoaNMdL7n4VEsaHGOIN41da8+DMs6LMzebGLyhkaVo1Hv4rzoHsprRyIk3rW6vzX3VHYajowMoShPm4DraHUFDqQtJ6DT+jsRw3tlxvzA5UNGmOl938Kh2VEiHE23iX5SszrIvFx2VJsKE8bwlTR+4a/wBMs/bue6mdHYaDesuOeYmmGGo6MDLaUJ81SozUtrc5CMSL77r6+g7P/h/71fnUeyoUd5LrTOFadhxHhOWPAccUtbF6lG88Y19B2f8Aw/8Aer86+g7P/h/71fnTTaWm0tti5KRcBwZMGNK7+ylR6+motmxIru6MNYV7L8ROuRHZkowvtpWPPTujkRRvQp1Hmvvr/TLH27nuqNYcJg34C4fv50AALhkOC4hLiSlxIUk9Bp/R+G6b042vRNf6ZY+3c91RrChMG8oLp+/QFwuGynrIgvOqccYvWrMnEa+g7P8A4f8AvV+dRo7cZoNMJwoHRrmWfGl9/aBV5QyNL0ajE8R10e40nRqPfxnnT2XVEsuJFN7bQxeUrM8HSfndzsHwqweaI3Z86m2bFmZvN8fyhkac0ZQT3OSoDzpvprRloHushah91N1Q7PjQ+8NAK8o5nhS7KiSiS41cvyk5UrRqP4rzo91I0ajA8d11X4VEgRoneGkpPX08KbZkWYb3W+P5ScjR0aY6H3fwpvRuKk8dx1ftuqLEYipuYaSj41IZbkMqaeTiQraK+g7P/h/71fnTdjwW3ErQxcpJvHGNTIMeZh3y3jw7MyK+g7P/AIf+9X519B2f/D/3q/OmrHgtOJcQxctJvBxHgSrGhSTeW8CutGVHRpjofc/Cm9G4qTx3HVfhUWHHii5hpKPP08EgEXEXipNgw3jelKmj9yv9Msfbue6othw46sWAuq/6mf8ANmk/O7nYPhVg80xuz5/9mNJ+d3OwfCrB5ojdnz/7MaQuBy1nsOwXJrRpwOWS2OlBKT/2Xmy7YUtxDMcoReQClOdfRk7pjO+6oLVqwlEsMui/aMORqyn5b7a9+s7kobMtv/yGlPFlKCBfeq769w4UKIF5A2VEdU81iWnCf1mW6WWSsC+hs+vkvracbCW8QV9VIfW262lLeIK/lRySy2blOC+m5LLhuQsX1aXe2vWDgbBnRmMD9oKbdbc5CgeATcLzW/GAe+CkLSsXoII4CFpWnEk3jgOSGmzctYBpEllZuS4L6WtLYvWbhwELSq/Cb7sjSpjCTcXB7Kafad72sH6tx9pvlrApEplZuS4KtPwRXspPJHAVLYTtcFNvNu8hYP1SlpSUhRuKtnAJAF5yFGYwP2gpt1DnIUDwFLSkpCjcTs4BISLybhW/GB+0FNuIcF6FA0FpKygHjDaOAuUyg3KcFNvNu8hYP8jylqceEdo3dKj5qajtNDioHbTjDbg4yBUrEjAys4uOCk+bgJG/HCVd4SbgOuktoSLkpAFPxUrzRxHBsIqI6XW+Ny05K1vjdpiWVd7AxXddBtAFwSLuynmtxeQ6wk5m5SRrc5CuyrN8DR7dcpa1OJYaNxOZPUKajNNDipF/WacYbcFykCpmJpIZUcQvvSeBHSXXnm9jeMlXnpCEoFyEgCpUYLTiQMLo2EVEd3ZhKjt6fqZjisSWWuWvp6hTMZtoZJvPWaWy2sXKQDU3EyyWicSDyT8qTyRrzmPKF/cEZekaQ2hAuSkCnoqHMwMK+hQqG6XEqS53xBuP1M7v0b09ZyGdNI34rdHe9DkpoNoAuCQB2U/FSeMzxHBsIqI9uzV5yUMjrmeExfS1k3C800jfit1d714qaDaALgkAdlOxhy2OI4OrpqEvdJjytmQ12gohtKUm7GrDfTTLbSbkpFS44KCtsXOpzBFMqKmklQuN2f8AI0TOXJJ23ga7SGTJ+/rfNzDh+6ahvFEdADLh84rfSv4d2t8q/h3ahBW7PqKCkKuIv1yWCtSXGjhcTW+XG+/sq7U50y8273tV+tfIV2VZvgaPbrjZzpB6rhrtQdyQfvcCz+VI9PXZve3PTP1Ledpu+ZOu1BfF7DSeSNSskk1BeLccAMrV5xW+lfw7tb6V/Du1FxGW6soUhKh0/Uzu/RvT1zcornZUUXRmvR1xspskDZkdczwmL6WublEc7Kii6M16OuOLrQkXa5LIfbwn2Gg5IZFzre6Dyk01KacN19yuo/yPfuE838h3467QXidbSnYlWfbrUMSSD01Z6rkFlXLQdRNwvOyojqnkqUQAm/i6w8C+pq44gL9U9IRgdRk5i9+tfIV2VZvgaPbrUdwn4jyHR+Ou03MRShOxJz4Fn8qR6w67N7256Z+pe7hOS6eQsYTrtVd6MCejNVJ5I1wDuZWwrak5dmuK8p4uHLcwbk/Uzu/RvT1vI3RpSOsVAcxM4Dy0ZEalqCElSsgKgAq3R4/tDl2a5nhMX0tbyN0aUnrFWe5iZwHloyI1LUEJKlG4CoBKpbyldIv1uvBpaAoHjm6/VMbQtlWIZgbahqKozZVtu/kZ5pLyMK9lBEprJC0uJ+9WGU5kpSG0/d207F7khDVwuViN/AfjhwhaTgcHjCv0wZdyV563B57whYCfJRSQEgAZAa5EfdCFJOBwbFV+mD7JXnpEdanA5IUCRsSNg1qF6SKiNllhKFXXjq1vNpdRhWMqDclrJtaVp+9WGU5kpSGx93bU1pLUVKU+X7+BFaLRdxXcZV+uI0plKwq7NV+X1LiEuIKVi8UGpDOTK0qR1Lq6WvIltseanYn6MW2+UdpV00NmuRHDtxvwrGxQr9MTl3JfnosvvZPrCUeSikJCEhKRcB9TO79F9PgPxsa90bVgc66/TB9kfPW9nHTfJXePITsoZDLXIaLjrKhdcg58B+NiXujasDnX11+mD7I+ehHW4QZK8V3ijZTbRTLdcywqu1vtJebwroJlt5JUhwfe20pl9/J9SUo6k9NJASABsH8uS1rawOJ5A5QpCgtIUk3jU+d8SUNIzSg4lH9xze/xh97+dDDAN7K1N9myt7OK75IWR5hdTTSGk4UC4fuJ1GNGEKKfOKZipbXjKlLX1q/7p//EAC0QAQABAgMIAgICAwEBAAAAAAERACExQVEQIGFxgZGh8LHB0eEw8UBQYHCA/9oACAEBAAE/If8AnJifMgntShgpHU/8WAaEc3Jyo/WvBn07bPV6P9OjTVa5Rj3ruCN8Yppe0UJk6/8AXAQBGyND43tNq9Xo/wBOQLsL0ctKkrmuX4Fe81/w0IAZrFf1ev6vX9W3kGHta/q9To3VT/t1gCYia/q9f1ev6vX9XpTyp/jW9Xo/1DK4ndh917zX/DK8gKDGFZt3kv8AGyCMDYjlQ4CIN2Rg3LpPKsBfMY5AoIr5TK/7ctR2TJF70ZcJCVmOJo5naNZPCLBPiteiZA4rDpQXHwv2uPD/ABLer0f6jzfhr3mv+IiUnpsnmibhIRyq5E+Kw8RvQax3JY/NWjA678EH+59xqr1uncQSHCrCqPCeDSvJPF3Of+Hb1ej/AFHodNe81/xUT4LqOPn5qT/tHad62rpBwMD5/wB09hqr3+ndNslXyFzyU9EQ82Y7UXLf4VvV6P8AUet0V7zX/FQTxXVZ+qwIaelPBI24O4hFQF5oobXNPvZ/uvYaq9/p3Y6KWyXNrt/hW9Xo/wBR7nRXvNf8UGEr5TWMrX0qTX5Rc+zpuMXQ5xx8TQRn7I+dycXxN30quhmBKuaeEG+q1s8entS1cGlfk2vwvuS1XYbSV4PzWDKMF5qZXIv9WlXpXBXyQeKRlHwh8UVM5Q/V4oLNwJi6O4sEuFOjPFUd+dS47meqvRkcGPyRV6i4x2x+aPwcokdolT1zdCpn1lFb4KsYTT9k0KcdUXnGgjBhKOKaY8JwwTMPxtwmIYg3POp0HitHuqwIMWXzSB1+fl/VQfEDNhtPTbaBeq6VXCTAk/QoMsWg31XvVhf1SyYk4F+T+H2Gqvf6d10MN4lg/PSihYvdMzQQQbWJfOU56VdpjAnysVBe1pQjcHM87lYEzQD87p8hiS5+lA4eIx5uFGuBq/ang5Zh9eaC8MsTmZbLe70bcKbFtron6yo4V60+RQMN0J/FA7fRV6caC8OsTmZbRapqMF5sUmTTmfwRQ+CchtjWQpsmdJ/E1wUUSfKfFEzpxbB1GkqNq8uVECCriZ7hU0lSAq6XIEsuWbXQHIVFg+ZH2CgjSsg25q55rDW4kmyW4SRMFSxxNh+6NNQwVuLVKV6WMfmgSO5LwfmsEchMuK7fY6K95ruAdLKICtOhqRPILviuhYigtXGQaWQl3EOZiUJEJRI7i9+PFw5sqlA8gXktVn+l+RUAas2BzMTzUJVJdKunWN2C+d7HxFTbgpc/2t13LMv9NeuO4IYuJrryKnkTGIa/qhYR1HVdkGlmS61EDaHPbEoDj7SmwwYQOIKuHBkT1vcK7yg9uzlV8Fwkp4abLUNkJGriowebU4VjaP3HTHaoEtgp37oDH9KaSdxrBq+tiSXwrFVtNvxNWC/Wg50IgjI0oEuFL9Tuh1c2iWwMzsMatAyNMQM8av8AFemGz97GRHYMf20BmOJhLPp97R20kyOTVSXxItUT52LcLj5/hU/o/JX6owY1cXi7IangXKan/Mjoe4lFwBt/4D2Gqvf6dxAe5qmnhxuJpSpwNnAaNqB+QvA4/FI1eYg8jRY2GUskSRrNUCxPU4UE+BvkDU2lOAO3XnWM+0b6c0bUIBAbAQAjk0/luGF5aPiswtvTE16vRsEsKVcAoBHhMCfj1ppiLxhw0G1WVyHxpSqV54DnVaMcEx0tl3zlbjrDariF610anADd73K8oUcAxvHqcNoIEssOF48aWIaNS/HCkAVI5mw/AJSpKn4AKAIrPc+NrYeg8LSxM09FjRqC3JGgNnyBKmnMREjlDXifnc5qXA5NModCpAWJHnWH64bfT6K95rtaFU5rQqYcmeq4tHCH9gu1+YS0/sOFTvxPpfujimgZmxYHL1WfSgYgGZv7UoygoAQBsVht+ttYRWDATIlDIJhuSET47HxNOpLE0awmRRo5nfY38IbgUdFwOAfzPbchWNJ5zmca8gTmnRtuZmUgKBu+IWTFijjmwk5Wfk2nqg8U9fg3AElL61aGZzhpWmbp4/o2RpEVGRx+ip9+ALtAQALAZbkfIYjwL9nxSHcovph4SrSoztSMFEJpRZiQ9pa6tpbyl1FRcE279NjXyV4in5KZqQP2uFXSICSO0ACWlKrLpsu2Bfa7M42pNeoxGXrXapMN1WAq/wA2DgrkdqWVsRzUfwPYaqDXGpmBDUxWcr8K8NjjfNJC5aUrymXtQ7O+75fitb6Ri83PbNO/yXXpVxtyswu0W3DKlfKauBaTxGKwNTDRzO9YwVfGrwJn4ohSBda753AVJmPg8xs9Xo2REETHZQzckfs0HvugmMw5Y+JqNQwGUa9NoCHOfsoEi4H53frdMpEJzcfI96l7QTc3+Pxs5DD9bfmjIY74MfPxugcxV9M471wHk+t8O2wyTmU4bg3fGrYfrhube812ryyT1zUFGXrPBY+++6Akuy/kpMSJkycz76OwMpidR+qJmgExlp2KQPc17G2G9JkBfKiHJAzQ3CYJRCUy2DnFk8RU3fIWPn52YVdDhN/o61hQ09N1sXwqWCuP/FSqphf2lYxCDH1Y80k0qDPUc6na2x6/OvX4N2FsB7Q/dRn+6n72PI2aOKr+KNTEDqndO7SF2FFc9wgvs4xGlPpauKR1KPFhk/PGmjv6d1c3KMOZltSqOlImvoOo1yOpWemFKDP6f1eKbk7hTycHdngBxPi1Tq6wbo/NYsSWvgseaAHTsYuN1zqWHj+P4PYaq9/p2LmDGUUaVBdbM831Uta+ruUN0shZNqTnzq/ShazI5qfveArV3Xpn2N0JPzNIpzjzQN1HehvQrh25V7vRsZNm48rHxQ5w3YH73QWw8VsZHM44xfaN6igH1ulaxu+utNI3d2n5CgwoyppZY3FoQmZ3p3SC5dgGsEjno0WGEnYWaUDruqYfrht9/rXvNdhcLL5hWLehIyl5xulpVfH3SOouOUw+NlvISUwkVtrcnRrj2qCoE6JvcpyQ2qfbjFIBQjgm9Bew6hc++1SGh+l6Hps1JEaS9d0NBFsPl0KGS9Fj2fmiPGOexz/CuWI+PPXZ6jRo3dGbT0+devwbs41P19UYPH6diHGer4ZhBdMYPCvdvuvdvuvdPukMu8pqHOYz/NFgSMhtlfShx600+gtlRimNM9xajQPTPg60hYWZfJw2qyuIzSj7ADiealcP/SY+KaHeIQlP+uivzOnxsEtlsOPF0KIDVFhyRn1omcF58Of4Vq9qF3m57VieEn8B7DVXv9O5CweE7OqnsgGfJz+20wOPyteB3jnlfhQZsvpaKvkCj0Wje9brr1ejYYbifOr3+W6ofj+Ngib1L/ANt6TQorFr+VBGYvw7PD7qj0YmwoDifBstdcel43VMP1w2+t1r3muwVg9DZ6/RuuONWCkY/ZtsZGQkaVUPL4NOrqm92a55ZCkDBu+X4UaIwGZuxcntS5+Oux4pRzWvL80MuNV44fnruYuX5QUrsyuRkUZFujn4BuEC5A7NenwbfT516/Bu+81oY477CB2IOJc+XtQoMQjir9u/JKZomArHuUoi+1BIcKOlxAGoZU0npx02RdLxNpOOG4hMws+Nq6VEnUye1Zbg5Iu+Ke3IGjIoi7OHpxzx3CA5Ery38B7DVXv9O4ASZj4PMVgkWPLKmlkDcHYoIuSeT5aFTLHMR/O8F2dDTakIwvpwPjzTkEmD5eJr+ohaQCSNx3QBw7m16vRsU8dwf2mj1wdEfh3SStZ84g80aUqAM2oT/Cm0bWH4R+90EmL3VD7UllfS4tj5aQRHBrELTnMmj15Xot0s+G7z9UB0xDyze22XceyNQt+YW+t1TD9cNvsda95rsBjhHUij5kA0SjI0XmEPxulkT7A/qmAJ6Pu/WyTkYvPuO4qfch7FSrJBcY0axmpHed6JkP7HU6VNXJ2gfoNDQhQNDcAsf17MaeTtuSwgwetvzQqY2ug2nmgPDTserN1exm0RGIXu2WXkz2hp9N8c9TklRn1PE4PHcEeEj1ahEkwa9npUG5CXCOXU+NycRMXqvrRKLweZ+WzR3fQKvRGOHDcZ8hFM4D6oRi4D1z2JaSPxG5a5EM9PT7o28kd1/B6DVXv9O6sRHlR+ulXqEPlifjpssvJnSMGlfQOuZ9yiZGAzNy2gEWq/GNHAT1Bm0V4IDIoCAI2RpkXbn4VaMQXDN23LBXWL2emxizBfw2AJEzDHPKVQiTcvZOu7dJQWhw7vxUSVLHv8j53BoDHamJ2+NxCKAM2ry5eaPzj1pDBHTdOjZASIAGmX07VGkXezcz4e+7K0wDXl0PmlUeImWvr8c9qWcR8ScfM1HRPWGT76u4RkXMIBfBQicmfP1tt7/dP1R+40/W3SKgdzr81fAaWrx7PzumIRZmfsHSoS5xY6e0ADSEGcM+uO4go4PkuXx3qx2FYebvfPIlh5+aiXZ67Hx87oIAjZGntqkPJUqs0wez+KDPPwO9TNThrsUiXbYoY4fZopRLKDAcKvfr0MyneEwIfw1dxCS5XoVietgibhRps0uapjA8YpptvIyKlOmlAtc5BgUOiAQnWk0wo5PGzKdk2g8ZA0oIBX5kP2VrAgbdlI4b1O1Am5LI+5rFGc+WVtj2elMUsEMONFEP6co1qxT5HzSRTKmecKec8AGq/dQWnPB0OBstL06cVM2oln1FrQhTmlZ1wqQEcf0rR80mODLnSjkwl3q8KbkNJ6VNs+jwrEnM339sqOdgPvardTgrsUktdhiDhpzaImEZIhsfms+xRrqdqVqTAh6ODvXmLxCdOFYqMXNo96bsAYI0JQUiSJuMYMhUZzq+s/2UAlJN0H5bLMWu4HRpoEuLurMoi9CHvakSbfpnTSTLK3fCih4URb4aqiRt1YrV2lPdcMXqVwoAE6J/FGi54z0P5oYki9s6aIcnHdcKGsRCyDh8lEajpnIoR2REmTCsJimwuC1hnx/Ci6DAFnJ91FDPXepR0KUyTBEQftpmy8rH4yjelgLBuDMspNjI4/hR7PQl79da4gGFptCsib2L0NGpYdMNKjKTfFOJ4/G1mIhCOdcwdLcNSmKna65hlUs6R+VTBOWvFIrCS/sNGCqcaV1/HvuSpJk6c6O5YmSNO3rsTynLrQmAe2dYCmEYnn+KskBkKk+6yqQ48KDGeIDMspwoMDoS8taTQqtI5HnvWVIHHhRgUbAPBo7BdjkYJQ1D4lweDjThM0lfsqadSHzU0I5/xXeY15Puo/A3xDjdXa3yABmzTAaomkokSzAk6UnyDhOlTNYjdJu1xeEDl/NBuLAyN4loJGZWNtYi367xlksiWaUsHCOzTLaPkoFwVGeKH8ClVlkmS7pz2IXoTuMSRm1FTclodHaghIqlxw9XbIRBo5XrtQQ0OOeRhi8dvB5DNJuA5zzUu5OBQOo8Hs6YeN33G5jn1pXIhFRrikB4Jrgto47mPxoZKS8wryo7eHAFG4Bg8HLI2ggCrI50reeEdm1Mto+ShHJxPF64YSMTXHggL9NiGqDRx3d6UajRyuOe1BCDx07AN1ieB8dxesNO0B1dumI4YcnKmXBoDyTRJePkooi838MKBABYDLds1KRkaaCzlb7M0SZfJRElzcnbCgAAFgKkFSw5ejsQvccklx57bv6wEqYD6P4KNYmkH1RZ4+g4dN4byPyq2n1vHrXJkj+xXIAA/OiOILj13jyNisv3SmycZVMANCPpRPNO/c71tbXf2dan2hxFU04RAfFcfIQu5uNWUCuJN5y2IR7GeeEwzrU45ZOODw2oIQWincJ13GE9xf44VPtTiKphwmQfFcZoBK5uO67ElkSzT9j1wdn6okvHyUUQmCodsKACCx/wBYN5X5f+MjeR+X/jDepunECfNCN+QJ+E/8XJiZGo1lpRVC4tBbuNl0KcBSEUeX/wBDEChX/wA6zpCDOsQEiNf8kmSEs05DqfzoGRd/iZMi7/ykAXQXqQHowr0HHcUkUBm03D0haN7e7gMgBitMIzcBrjcodqwK4FExLgm5wYZi1OlWTaigWYl3LPZeQ1NgeBasCOmD/G7C2mLV6Dxt815fyrxdhSgStqWiXwv8Vbm9JvR/CaFEDXcZKBm0nD0haDnl7uH1sRruOBBirSqO0NQBPBoTPZNyLQmResenTP8A4eSRSHlQwTNRK1HmcYhKc9AS53WdxX7ZPPrXARgUFGXVn3p3GEi47Zu4lqVA70FEihBtk1jb5SvY4u2Ns6YRFcwtSRel6lahrxjMdyfLYLsK5NCKTYoWV6fgrzfwy3j9wqzDPvLUSVyoKqGtiQ3p4u1EqFkFEMdwKKhFoUa8tA+P8PpctqEVAXpGmmjX4tcJOFLLY6xnnVgZcPHb5j62giQF6ZZYMZbxa4ScKTLWGcHA1ZmTMaMX2y/gLQUIO4xdrDxQbvCm+PYSIf8AhtHnQX/G0tYA2sRiJ4oe6TYs3r+mr+uqabgDntyYKXBNGi0F01C2UZZ7fOV7HF23fjA5em0nPB3Bfzntw2n1fw4tlh42kq4gleLscNiFSwNVKzX9NX9JQN4LHP8Ah9bltc84KIRo269O5t8x9bXJOCiEaNpk0D32pXhxDJqcEeb2qE3pcP8Aw+jxIeD3ztx4GnxZeNp4CEVgXURqa7AZIF1as7jgYm2KpdHBNj5ogSbXnK9ji7cjYE5A24iBr0XA+d8HtuH8LwLINH2NuaVvC0rxdjcrAMx4thQJcKgaJAYv8PrctvGaKibexiAQpWoipdHBt8x9beM8VA29jIYClaGyEoaDh424cwMhsVylJmKvdvF/wz0p8irKphnK55iM0nthosf3uOxwH2UflIpindNzaEssANoPuBKmzHWG5e1pEGZFPSpPLaumLxVvPwMZXNGomhK5JXFa7iwlOY02uSljwfwzpGj9KsQrrCDLVzSUVYuNGCaG2DVxYKM0GqRrj5mZ1o+VkB/D6HLcCQHlz50NuOuqDGN8CgABAWDat8gy6blyR5MOajCjrqKoLg4/eliwAGdjaoK2SYjQsS4MinEq8eglwEB/zjUle2Za0PJcE2DyoC5f6O82N/x/2aCQ4U3fuT+FNpokKRN/J/okdG82sg6CTH/qf//EACwQAQABAgUDBAEEAwEAAAAAAAERACExQVFhcRCBkSChsfDBMEBQ0WDh8XD/2gAIAQEAAT8Q/wAcjWNRfvT7Uf8AGfBCR8f+LDdBw0LJs5xlQ/RUJ82CQ3s/iYlnzswzpKRg1ptD8BJ4oCICnREZjU5/5cIAkCRHKhjgY2s9kfxEQ0uJDc8ZN8BhGFTW0hVQTc4iCk3sz+0vL8bxgd2vvf5r73+a+8/mhEkw9KgFGEZj3r73+aRH7CED2/l1QOgBEySa+9/mvvf5r73+a+9/mo05oHw/a/b6/wATEI+dlX8RftLy8/Q3KEublANVcHElwuoTC1sZqKMlugYkwAmN1vtQTwAsYAg9G1LU7ihLVFzaTmnuI7EpRSJksw2N6P5wQICdMAwP5cxg5DhQG4K5NtHCmIMOxEslQYAhBMiQrOIEWjW3/dV/2VJ0tgFO4y9yh27NXO30d1BqVZjacRo3Dc7L+z+31/iMh+2U3jKkROAXfYDToXLQoYSohfMuNpPz7h9WIH9THDifCjxS6IYRh+gU/wAu0QMwqiEVvRCABVkc6sc0CDGNkChkiYIVBO9Evhy2WHWRzf2X2+v8RkP24W9ZJSLCSD4L2VadmBwvJ5XiemKz1nGF6TkB2fzJ67GSD+P2fjKcS3QzLd5JSAVI3E/Y/b6/xGQ/b9r14mTTG2PmfA09MZXjKY4YhrdgZgCez6BiCUmADOkeRM4iP8A5X8yeuxkCLVuIamk23drGf2P2+v8AEZD9uevQVG2oI/NErGl6pJNmKucvI43189oehn2Yxxcrt7oowAHMwVd8n0DZMZu0yG6hSRxgmTWCA8PNa6ZJvBOkYNQyDpax3pMQZBD1jDcNpjqBDOTEMSqgX3mkbglLsFLvx7ghJlVbOtKMHwxLhoyY30GhG4JqGsyKAFNgWWwsXzWb5qB3Ens8qSDNBxoHJ9nL0AyACVcqs8/HN0tfAjehN6AIBqAOQUiuBTTy8HmsvnLJ8uw4eFQ5uGBsnWx5ubnKDFXQpUwzI41kPclLxFjjN4oe/GLT6hM7EohoV8MVC3hbvNXc6wgUBN4lVl0RwuUtMYsjQI3GjhtkGDUb3Jas/wA0wByQd6S5As8CTvDeohf8ACXGLqYjLqYimS9ro3YN6lcMVuKwHEPNa6LJvBKmSVQsXix3oIW0OBqZbhtIT+geqxkigvhrMTBxLwVIyDgy79oHvBRGAAQBl1WQ7JBolLA5Z0Gh42E0dxvz0k3qC/7VEjdKRcXrsRULYUgjaxgNxd/TaIQwhkuQ5eJoGgYglbsHhKdMarK3YNS+NCrxKrsOKTr7K4XRLrZK+319CRgK2CnmNYGwxS8E3oeRL3sbpnsFQaG6E/aSmdXEcNTENyj9PZnC6JdbNT0irzPBYRUY6TW/BvPsfKmGbcBZFhVy1pnKkbw1L77Ba1dlcDHmsTXsGgc8O9NhuBzXeA9xBm0HtRCQOCPoeUoYExVbBTNGupmwHwHNAptwFOSb2o7E1efaoXbwsD2EHEtqDAsnJ90y6OqIdQCVgu0qlFhD4xexS5ekw66qHt6J7ZC9q2BEMUxpwDyF7RoZaCkMwi416Hq3Xoe8DA5pqiKODcJDmgedMGo7TUBmYdpxJRcHYss3D2WiW2DB1Es+hdJpAh05Eu7tFXZWgBxIPsFWwm6P7KhKgu6t0OxSakwBLjMECFzX02Mb6bS8r31eJOXCd1zA7no0U4ynCHX+9J6ly1kTHFsXexnT7AkNnr2CzIsURhhKT5CfYyg6N4TA5wcxsyUukwyMBMdkTcuU0wW2UeC4mydFhZOZDMCMlP8AlRaCGDEiNpluvSwsOIQD2QvjeC8UeECZRsbsGx3XodJoUDRGzVv47gI23LaMlIswIpBsstya4HCZ0IgjI4J0ZqAlWwFN9I3CGa+0zxcgjavOsgTiuTAL5kZUCAlWRo1EGJ4BhxWc9aaLDMRmiA4JFmZuFGyFIjIlIEAEq5VpGOebJsS9jAKKRiDdl5dCYDI79DANBpNEbNE464+XCHXvg2zKk03ONBPlfRtoj4DZDRVp0Gk/aTlTMzYW3Dl1Xoi5jYwOuJlo2syhJBfZU0gwMkfCdgK8RnRhQL6BitAsAgwCl0sEadR+DAy6Px8j7CaMm1BzRrJjDXL5BpKR5IOMbIibMZes9VjJiuNjS6BiuxekAYgLjZyxywHLROMG6HDq5vB1gcGYH15flhpMDVrgOLjfCdcAAAAWA6HQxHAckcamkXVkrZzBNkyUizZvKzAg8rJ1O5ax0ESpi3FzmayO7azd7bO45WKCRXG4G0Puxy6AWOgBShCRNKhMcBKLg8q2aIiSIau7jN0Tn1iJyg/ACVXIqFpNwkxfTbpfQEh5cJ5yYGuLnoU0RE7zIdVity9SlRvgUgllJL7iQ4JzHeJzS1MxzPHSbMBZeziMWgU94ogQHI2RHvUuUAwluBgYouw8Uu4gKm3ctAsc36u9VB3YYbNVnU12rZTicscmJeREoIRJE6aLI8GhqtgM2rh+p7O7HihlgWC7Kp8gCFt3I2WKjo28hCA2uRxg5lODIbZHgBjkiMlFcg1iaiZI2Tak0bClWIlNrFUIStGFBiIvFWP9YehTkrcJYmCEmDByKmvUSQBF8QQrjlF+mh6Yl6FwrC6MCzX/AG2qY9reoWJasxLiuRhAK5KSvdL7GQdUOQDJ8r+RW4b0fcc7IDES6iMZMb3DA9XkTB6WzinJAFkbBeQM6lKakgJZcbyNposGIUGABgdMEbhAmuhs2aJyTmgY5KOyJlROJRImfXKrt4IS8Sj59wUtEEcQZH2qK8CGEMdgJ26beewBV8FQV5uzQA2kOB6EtJrBFSq7CRxAi9mcWjP9YN916k1KEA1VsUtCMcPBglDneLXZhGk5Unf2Tq5i5zyX5r2n0HCKCgiTcx7UfMONID7lTFga5FPnoRUwlDC988C0p5vAy8RIRylFfUAgBgHoMcUxB+YCic0y5gH2ztTvSp0VB81MoILKMqM5dWQF9I4wXM9XpvOEJJZNxhNwqYqmQgIzAx+HQZGJkpUePNSZCAChSSDMN3KDKaJPEPJqJZ6Z0mgIQPRAIyAumHSPTLwBhKNoQs4mF8b3ciwL4i7utOgUHrYcAzVwqYKCDC7mZrzysTSdUBOQPcez1nSwOWlQMkQukOBxQMmZJQOGp1/oe4KmFuCdiF91ZlKhXF1jYFSvGJGd9L9z1QQORoz2heYM6xbsVKJndwTvQAAQFoPRAb4bENP3gILSkJowiZilWJs4MrsBO1YAFBjAsG6wd6neOuROA2CA2CgksN158n29BRlLsgS+wXam2PXJAP8Acvd7yK7Bk0H8KbKQk4B6QbLDnj/f9lTyUTNYOaZ4kz6NO4hbuYPgKm/6bLvh82nqUWkwzARPeKYw7peVB3EcI6SLjiVZS88GOaF3vYXIWGyjx9OBFGzLPgeSm+P1lhLJwOT0ESkQStqE9/RrVvVbQqz79nW9FSCwo2K3msbBq0XMsledLyP0oJ7hZ2+7ioJqHIXPZMHydHqKwZSwvs7lOvcTiBncKbwlYbYZ0OiYrZv0yp5AmAC5IWRCLZtYfkSgBTlPQF5pBIjiUH7JDil33Sq4fC3hBsCel8JHzCxK8zbUHva+QRLu4+lCKAEq5U1lbVzSSx5Sj9srmN7MeUohJb2dzyruKheRm6jlLq+LW1Cfj/j1+htT2n0GdGTgDuq+6p2Ww1BrAQRkkD4fCjQuxyL4emQawxmgLvZUytrRRAxuYbPJ0eehAuzBmueKbkzFJDTiiHwlYLmIjiXwaT3Oy0HKSHC8UMzmbj0S62Q6NTBHBJdTccE03ipKYYb+YvkzCr+Ky3tu7u5Rx5gF+5NDNbcga09gmdvQoEtiu55y6OA8pRdkQvwD8qmAEDhefJMuKxyGgWBIur50dgdhP+nrPRYyYIQmbs0EZq4A3rzuxyTCisbEHK5DRuZYRQcIyBRIjp1KFwjlJH28lCBMvYH8epbIHuAL5pMj2Q0Pd70+aEE0P6FEtLpqAj39REAFhoD8dUkVocufAKjLb52E930jHlAbLPz0bJIzMgXkaa+j0UENee49KETGIeRQoQ4Dt0va2gCX4rcaPCS+7QpQrbv5g9INDCbP4al9h/NQT4q+UYcJTSRTEaEHACdda9v1mhX3+nrecSOWSnvFKoqVurQiRLG4r7r6XYE7QVaEiYOzcDuk6Tk4zxomiII6hVuTl4mXwjjlNBRy0xuzGJs0FGcS2vaE8jTgRxBI7Cx2UEIQokR09VleYGGM8pDtrWVugwpdhoFDyWynnvfuHpLg0wFtf/Y4GaIPIVeEOMayd6UIro2xiPhstYIckhdyxW6vQXtKWX/dD+rr9TantPpCPMZ8NEr1Xw/FZ0yJYjiI/FIwGBIr0WEsdfRNmyX9tigPZFFDjKI7FVRxFQhyFYf3u3esarEC+Vw7DQSdc8bmuZKxk/Wfze6szrrsNDAbNR8YcsLhvIeETdOmG3tRzfB3KWfrhdswHNGntknxZUs74QRojcpq4k2ZsCY5b+zCiQkmKdx7meWcQ848pOEP5GipLwwbM7jyqYyh8tL9y9DO181Sn/lP59Z6rGQFMTdhHwId4zac20Fc7lsk7EderpcEHEP4qO9+B6icaXgKJmAHJ/YUZsxrYO2D1dC11iIuCze1EcG549InMB3y6ICUyeyxTX0eioW9/wAqz9CIc5SgmxTdhH4rDOA5nRUbPpSa7fIdMBUHmHQQdFKMJk82XrrXt/RNPsdPW8aYpfEvxTUbOFn0hCcmeH9ViIgPCjoQcoQByRslXJGQyvNk7IbUUB3DkOwzxNMCfM8kJUNwTJTu4J2PN6wJsGISPptuluXww5howaAaaC3BZyBHCp3MQcn5z3PQycMxkhfYpcKEZkyjYIDijgHjXuNFJC8hl6E8hGas/wCKN3QnU+ptT2n0llWT/wD7w/HSX682Aj5ylNiE3MLeG7Ndq7V2rt1U8KagJWC7hQu9SmwYiJJieTqzAUQjnSZ6EcLQiYhSYskuJdhQMZIIe56LTBIgZQLLoNfRNIwLCZP4GzmU/pYcgiHuIe9IlS9XXGObqWlIXZMl2CCoKjEmfBuFzoh6HsB3AyvwNG7s+vPVYyD4UiyF32C7VIiHMEyuuSTvW5nsAEfD0nrQkwR9/wBmkfiNa/Bj1GaEy1CF4Co/744kTzEqeZ8BTS/5fA/ihUCgYI5+lWZEOor+euROQmWELl9ntUxbiOkJ70Z+hmJC5GHkUt0LHkYAomAzKZoC90Wmvo9FEK3caSfkejWmatBsRQcuL8kcXhO1G2IQjmUILeTkPuEPekYZK9EB7Q9/SwWOYYv2dMesHlOe0F7UAABAdHPQnNFT8UTCYW7M/ddda9v6JpZ9+3reauFDQb8qnQguYRPJTDzKWw9xejOiS3aN+Xy0hmq2RnOUO46NVashhBlCAsxqeoGtvOh1HFbkNb2mDVHcETiGlxggt4lfl6tPG2DEg2GglAALczg4/wBpQ2Qx4AQHjrlQJThTSc+00Uuwxhlbbth29AZpRpFgQ2BE6tEmBDubHw+3VWNnHD/iiursg29ICQygu1Lg9jWb4To7hOMw7+SzspUapFpDDkCToyUIogauYZBsnoYoqSZBiWBBuxMOlAkkJEzrL/V1JnalEBHlBHZnR1DzGTi7A4BdqWlY9YUByz8PR1jW7UR7UBExs9S0RkTU9BgTdsSN87qk+mCFE5PJOi1BSMkKOyJ2prLoNhRSSGIcFHdGVJ6DuNIngfH6xjJcBHQUgHCtAwkwW+d4h6CIkwScd5MdlK1S2lgk5WHC41g1YNQkfRBwrMuJBPJbFL6oFhoDsQd3AaIgkEAEAcBQgSQJEcqkuNyRK6dZRxDnR+FA4oI7ox1H0IwNFN00I4vwXRUxLJmdCITACUXHVIk7mdBsXUgBueZ5B0io6HYRM4yQ8A9+tNmQgYGX6WaPRr6PRRGARLZlg3VPojkZVIA1rAWBgrYCG6aBdpNS32C916AJoVXhbs4tjQ0FC4TIAt4ANuo6DOnupILfRiMqeFGbC2O1sjqYlUvZ/DUhpPPZV9hf9DrEVma+SQ40EvxqU3UO+mD4LqaNEJzQRDCIawHWYyUAMuDjZ/0UEoaziJByL29Iq/QiAzcESR47io2gWIxQ9FxTYMTp9brSQSCtgRLaEOUyfQsNm4ZF2F2VOogBhgIe4Tw+q9xKQz7niyt2capuo3AHphAJAkRyqDBlJkvZNHMjOgrchAVxZ2RxlncS8rwRd+BMB7LTM0vHkSvtQrckQni6G4OgNHCd2a+6CVuwYYUFpKqYFITkU2xpvwkbZJYcgHBwKjjGUDGYCx2oK7RkLCdABBN7tNPlEhjTG4gm4VMcgMqtDi8T1IwuAAsyCDNrpUx+ALIAPAE7zUvIW7QAF5BgLJhe1s0KUb0SIJMPjoYlbR2Flo4m+FT7TAkC0K3HcnCixBZVlsERzHFSFazA3uT7UmdiJO1ZjgAHWjs8IkAxaBkYNssaKiCuTzpyoAzmEuIxteS1ysfxYKxbXNwM6UcDRMS/EGhUouEnlEO/apCuCZRiqCWCVGQaVISgAgItyDHK59IYT52AFU5AD4qeXxSw9OQiewmEMBBc18js0/EMlfgLUFWI8qxMSWq+gN6FuKJEuHkMYceMQIAiQjUC7JMyeLQ8DfEdVNzBnFTblWdr0tMS7T2Tc7LSZQZefC+1Fk29tMWeHijIGGhoHrHKz43CVjGVLeWVYHBNlJ3rFiGkgSmwODNsPU1GYim5wmU6xFKqWLwkV+aQnRBspi2AETMmlDzwYQwRLJ6INYXCmuy1zN5M5rCNDZgdHBsJ3M6cZo3EZyskl4joHSC2mw/Zy4pbgltyN8EmMYOSXpYMLzvYtzstS1wFpBKy4Kd3g4l2pD7F5qw5sXeJggrUuBM++b8YFuq23Ra4b3ySVbjktP8ARV1ciTJrBIBJHZIjsonzI/mgKOWM17HdpErlXlXvxIvgI7IUjyRki7UFSQRZrkQthkVL/edZhhNR6BfVbLPPec82V7VYUxmRWh7qaL6i3ounZA/EWkkWZO+BWnqcV79WY4AB1rs3TyCOMytAAXoSHYIIgA6NfR6KTdkXemNdgJzZaUBjfDhWb4vUsNaBtWAr2a0+CvbmXind+6L1olxeXC1x0UsfsR05csOijTDSBsiaU5LGHQXmFx1xM7E0A6hO3w3XAnGFHSBwH/CGmYAy8Ga1e4UchbXL6Ehw1OnYckz+T/hUQQWOogMikvuWE3IzqentRB2RHuI7jULqIVK1CXhg1agLPXN8XUaV8xPdC/Y9qsMHRgycsFY5VaZEig4DBWyKd6eAAhSIACUuF+xRskUHBiYYwkw1KZOcUsQQbwGJCfcvgFBwGCtkUdmm6pBIq0GMTCHo1+48oxGoJB53AZwtkSzuT2EKnqRPBCb0COHJnwhpSHZH4JtFqk19cyO5yuZBjQLPE2TkuA5GBu4dAJ8HlQQN6ZBBJBdjB0bbONGEHu0uwRHMcUsUhMEvBej1VJN4XDZA5wpaq20tMpPGew5tRyxgwEQBsB6pOJ2Q5C5yXKhamwTViqlcDPL1FSuHIOIjiUmjpYZeJA2IrAhoZfinoJiR+xH3oYVvCC6sYu7UWBbBEQZY4Lz0c3gvNCspgphU0M7jDMWurjkZZ7LGDCj3OuIcc8pWCJdy6uefOTgZqIlhr1WLeTA6mjuXpiQ4EPsV96FPQoHzD8U8s5lK1IAd7vS6pRgSHkeyRThywpO4HxQEgZkHZ+AlBTm9rLVcV3b+jBQwrdmmiq4EuxX3o65zGPKPxU8lzJTXMbgPUv6wEg0Sn+BKgzxI4ArAhoVfioGFiJ/E91F8VE8mq4ru3oJEgcDTDKHNz6OSqgt8kRspguXqx0RnlKgiSuXRwpy8RQDCgJZWxn6SkfRKw0tQ70ynTzkiSEMjLrpv1OvXEW4lT4nAZ8nuogmZgF+KunOI7xB9xojYwEA0D0gxSGm3G1X65XHiw4EoF6aAX4q5AAGXaC7jRa1AIAMgqVId0jFgQ7HRyTwLDVS3S4uvWTiKCYdMJeGSkCVmgeygjpU91VX1TjxOo2Lgehr6PR0EIIKIH8ifA09cnKfJ8FG01ige61k7YiV3G5wQbeq/UmW3Viy3Rpy5dCvkCi4ZmE83NSyIQkv5nsW9T6ZEXzyluw0tuUxjyB8URJGtOYl4Sl06Ilh3ZXdqMthh0BdCXDBy6OYveRyFQxYQxK+MvCyUzDHTq45jMpDKRhY3MzrbCsY/ZI74k7xNKblcY8gUZLmVzmJeEpXOiIAbsru+kl1wZDRGr2yGFXiQ4hVxRoBfirsAAQeIeQ0SAAgAgP2E+qf0X+fv+o19Ho6KM/Q/qn/grX0ejoIP/FmhDtgaMO0jtQmk00Zn/wAXSXIqSKEpJS8gU/WpRqtQUgwqYSvkhoFuQSUZYThb/wB7z6Bao/h8P0jbD/F24S5lEb+1T+s9fEEMMKntJ4gAi5PjtT+4E5YYF0KR/EH9ZaizIObXiCM+f0oPBDm14gjPO/8AiRGVGFIhKzMjkJigSVYcp4GJoxD9CkX6viClSAqa6mkeQimE4XS4cmPoKG0ogCp5ItKDyEVljq6r5qKJxASulTKlyTDHQjKovS4IslQ5CUotYASN4GKNgA5i4FZdYPOcGRiNMgnQfIJTMCk44OGGtv0QO9Q3PGcHYvQRB4E58QK+y0V7L8dAGFIAAJVtFSOBpT5DWAITCEOG9YLfozdgbNoeeoAULGJVgO9SWXUDyEUxEmJMnJiVB1QgarFmR5OsWtV+tsEHep7R3R5CKVB+LNHOlNgEIYhJPk6FTak6KhBY7wMUwhQlDEOG9R/gyTczDSN38mtQFIhFylpi6iw7Al6XxkRrR3BTzR1JbQhAWKcz7rR0EyIUstkbHpDEq+xuAtz+79ZiSHmL0A7Ye9EBciIHijZBo1OhhHzFRp0+g0r3dLCtqVpHLHa3f61rOAgjdK/imcpIkgOEuVsJ39kVqSdmp6o4RFw3JLkMK8UOLLQRQ/g46RkxUCwpM0MPnHv+jic5dFjys+HOKOmJRytZcO1N14i8E4S52rFeUVQkeLley/HTephWRiDEXQ/rWwnQ8Sn9wwNAmMaKoLJ8O6HxR+h97fqN4OS5FJcUgYI2sY/9yxj5mQChYmWAtBhDTXmmHg+rsnA1LkGNXdLlQBax9xyrZZgCrMXK02nBGp0Y18gA7I1n0XgUGKYx91oyQELDuLUDWsaQ0GM0aczKMyzv/guFHHwh0sfh46vi25wkvwVlRWEHjkVD1ZRFFMlf8XUX9OrBWxmcXz1LudCfUL5aCIfjFy7eafIZLeDs36/caV7vouKGT7YQ/wBOsNiOOEZ+Dx6CM6N4F/ujpabABxH6ISMr9BF+Xz0QnSvfmcmPhr2X46Pjkp4qIXOSk/TtX/B1/wAfUUWGBIA/usrfofa36lxb7Sg+zRIkS90F92sOgzMNyJfl6Z+jtcaviUH2ajRCfugvu9cK57sC+70ilOTGMFg0OtkHlG+KfFFntjHWl7Lw/wCDgU7y8CxHz4dcGSxwMDkCnmuemIdHwkU765DNZBtf4oaO8XIA1qYMEoI5sv8AWD1jcQIJQYcTRQKxezFmR1w6/caV7vos6JbOz4AF/Hv1wrQ+FlyRKsHr9prR0+m0/RDxR+GC+PBovfLpm+STAzAd1ZjavZfjoBBJG0VJqHbnXE+59ESACVcqc0Qs2cVvxlnWGX6H2t+q7QQq5KWfNFmD7Ehs8RbtRQ2ZAYBSj7IMSSPn26Z+jsZMIVclLPmguCTsSGz4t2ooDEgMilQmSxgI8joU0wICJLRPM9Ld6XuhJD2wpWmAViwoPcD/AAUqSGXExNRyaOw9QoWkmPmksuYkQ0Fw5KODjBTEZVC6k9BcbjGRoMykdhGDleTDxTAdZQQ5l/mj5lkgadcPPZm2iZn90CnEwkjyf1SIJkMNre6/11SOS4ncpyhSUpdOYa9IisU9iMVqOTQZbcVC0kx89qb5GyUW02OaSVCqpuJTm+g+FI6wsmQvWVRUoSMKCCBkL2/REiGEctzeoYVhmHQT/XFQpdss7c2olaepIIqoaRvEBjpFJ6Zn2HU2oBADCRchbxQE+YFnar/dCEDIA/QK+5v1RahI+iGQ6DP7jQPGpE8lqFp8AqO7i/b0IQQAgAyOmFDQjTRRyW226xahM/RHIaDP7jTGcbBInktSEqs4dXPuqPNZLCAZI21qb9EySvwEm9ELEhQt4/toAkUTrsK5UBAwGAGB/hKx6ItHTP0ZdMqv6m2hJDL8rf1Rw1nAdGOBwXCYS1xO+z6T9OOmt6z9B+mUyCM0M4G79FrP059cenxRUf46yAUQjg0hhJZieVDzVi5TkWjGKDqtVz/gnkgQ0CGoaWXOO3+aHV/gcqP5r//+AAMA/9k="
+                alt="Vanessa Rodopoulos" style="height:52px;width:auto;display:block">
+            </div>
+            <div class="doc-header-info">
+              www.vanessarodopoulos.com.br<br>
+              CNPJ: 31.144.475/0001-85<br>
+              Brasília – DF
+            </div>
+          </div>
+          <div class="doc-num" id="doc-num">Proposta Comercial Nº —</div>
+          <div class="doc-cliente-label">Para</div>
+          <div class="doc-cliente-name" id="doc-cliente">—</div>
+          <hr class="doc-divider">
+          <div id="doc-itens"></div>
+          <div id="doc-img-wrap" style="display:none;margin-bottom:1.5rem;text-align:center">
+            <img id="doc-img"
+              style="max-width:100%;max-height:220px;border-radius:6px;object-fit:contain;border:1px solid #ebebeb;padding:8px">
+          </div>
+          <div class="doc-total-box">
+            <span class="doc-total-label">Total</span>
+            <span class="doc-total-val" id="doc-total">R$ —</span>
+          </div>
+          <div class="doc-ornament">✦ &nbsp; ✦ &nbsp; ✦</div>
+          <div class="doc-condicoes">
+            <div class="doc-cond-card">
+              <div class="doc-cond-label">Prazo de entrega</div>
+              <div class="doc-cond-val">20 dias úteis a partir da encomenda</div>
+            </div>
+            <div class="doc-cond-card">
+              <div class="doc-cond-label">Forma de envio</div>
+              <div class="doc-cond-val" id="doc-envio">—</div>
+            </div>
+            <div class="doc-cond-card">
+              <div class="doc-cond-label">Validade da proposta</div>
+              <div class="doc-cond-val">3 dias</div>
+            </div>
+            <div class="doc-cond-card" id="doc-cond-pgto">
+              <div class="doc-cond-label">Formas de pagamento</div>
+              <div class="doc-cond-val" id="doc-pgto-val">Cartão de crédito em até 10x</div>
+            </div>
+          </div>
+          <div class="doc-footer">
+            <div class="doc-footer-brand">Vanessa Rodopoulos</div>
+            vanessarodopoulos.com.br<br>
+            <span id="doc-data-footer"></span>
+          </div>
+        </div>
+
+        <!-- botões de ação — visíveis na tela, ocultos no print -->
+        <div id="doc-acoes" style="max-width:720px;margin:1.5rem auto;padding:0 2rem;display:flex;gap:10px">
+          <button onclick="voltarFormProposta()"
+            style="flex:1;padding:13px;border:1px solid var(--border2);border-radius:6px;font-family:'Jost',sans-serif;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;font-weight:500;background:var(--white);color:var(--navy);cursor:pointer">←
+            Voltar</button>
+          <button onclick="window.print()"
+            style="flex:2;padding:13px;background:var(--navy);border:none;border-radius:6px;font-family:'Jost',sans-serif;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;font-weight:500;color:var(--white);cursor:pointer">Imprimir
+            / Salvar PDF</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <script>
+    // ── SUPABASE CONFIG ──
+    const SUPABASE_URL = 'https://sifhvsfoovggxhpkhjjf.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_NbG8WUnz96hudDwnMPP7Ag_Ik1PpIY0';
+    const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // ── CONFIGURAÇÃO GLOBAL (FETCH DO SUPABASE) ──
+    let cardTaxRate = 0.05; // fallback
+    async function loadAppConfig() {
+      try {
+        const { data, error } = await sbClient
+          .from('app_config')
+          .select('card_tax_rate')
+          .eq('id', 1)
+          .single();
+        if (data && !error) {
+          cardTaxRate = data.card_tax_rate;
+          document.getElementById('cfg-card-tax').value = cardTaxRate * 100;
+          console.log('Configuração carregada:', cardTaxRate);
+          if (typeof calc === 'function') calc(); 
+        }
+      } catch (e) { console.error('Erro ao carregar config:', e); }
+    }
+    loadAppConfig();
+
+    async function saveAppConfig() {
+      const val = parseFloat(document.getElementById('cfg-card-tax').value) || 0;
+      const rate = val / 100;
+      try {
+        const { error } = await sbClient
+          .from('app_config')
+          .update({ card_tax_rate: rate })
+          .eq('id', 1);
+        if (error) throw error;
+        cardTaxRate = rate;
+        alert('Configuração salva com sucesso!');
+        if (typeof calc === 'function') calc();
+      } catch (e) {
+        alert('Erro ao salvar configuração.');
+        console.error(e);
+      }
+    }
+
+    const fmt = v => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    const fmtN = v => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    
+    // Máscara de Moeda (Formata R$ enquanto digita)
+    function handleMoneyInput(e) {
+      let value = e.target.value;
+      value = value.replace(/\D/g, "");
+      value = (value / 100).toFixed(2) + "";
+      value = value.replace(".", ",");
+      value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+      e.target.value = "R$ " + value;
+      calcPagamento();
+    }
+
+    const TROY = 31.1035;
+    let goldPrice = 758.99; // Fallback inicial (valor aproximado)
+    let silverPrice = 11.79; // Fallback inicial
+
+    // --- LOGICA CUSTOM SELECT (DURA SYSTEM) ---
+    function initVRSelects() {
+      // Pega todos os selects que não estão dentro de um custom container e não são hidden
+      document.querySelectorAll('select:not(.hidden-select)').forEach(sel => {
+        if (sel.parentElement.classList.contains('vr-select-container')) return;
+        
+        const container = document.createElement('div');
+        container.className = 'vr-select-container';
+        sel.parentNode.insertBefore(container, sel);
+        container.appendChild(sel);
+        sel.classList.add('hidden-select');
+
+        const trigger = document.createElement('div');
+        trigger.className = 'vr-select-trigger';
+        trigger.textContent = sel.options[sel.selectedIndex]?.text || 'Selecione...';
+        container.appendChild(trigger);
+
+        const optionsWrap = document.createElement('div');
+        optionsWrap.className = 'vr-select-options';
+        
+        Array.from(sel.options).forEach((opt, idx) => {
+          const o = document.createElement('div');
+          o.className = 'vr-select-option' + (idx === sel.selectedIndex ? ' selected' : '');
+          o.textContent = opt.text;
+          o.onclick = () => {
+            sel.selectedIndex = idx;
+            trigger.textContent = opt.text;
+            container.classList.remove('open');
+            // Marcar selecionado visualmente
+            container.querySelectorAll('.vr-select-option').forEach(el => el.classList.remove('selected'));
+            o.classList.add('selected');
+            // Disparar evento original
+            sel.dispatchEvent(new Event('change'));
+          };
+          optionsWrap.appendChild(o);
+        });
+
+        container.appendChild(optionsWrap);
+        trigger.onclick = (e) => {
+          e.stopPropagation();
+          const isOpen = container.classList.contains('open');
+          // Fechar outros
+          document.querySelectorAll('.vr-select-container').forEach(c => {
+            c.classList.remove('open');
+            c.closest('.input-card')?.classList.remove('z-high');
+            c.closest('.orca-right')?.classList.remove('z-high'); // para o parcelamento
+          });
+          if (!isOpen) {
+            container.classList.add('open');
+            container.closest('.input-card')?.classList.add('z-high');
+            container.closest('.orca-right')?.classList.add('z-high');
+          }
+        };
+      });
+    }
+
+    // Fechar ao clicar fora
+    window.addEventListener('click', () => {
+      document.querySelectorAll('.vr-select-container').forEach(c => {
+        c.classList.remove('open');
+        c.closest('.input-card')?.classList.remove('z-high');
+        c.closest('.orca-right')?.classList.remove('z-high');
+      });
+    });
+
+    let stoneData = [];
+    let loadedFiles = [];
+    let clienteNome = '';
+    let propostaNum = parseInt(localStorage.getItem('vr_proposta_num') || '346');
+
+    function onPaymentMethodChange() {
+      const method = document.getElementById('pgto-method').value;
+      const select = document.getElementById('pgto-select');
+      
+      // Se for Crédito, mostra parcelas de 1 a 10. Se for PIX/Débito, trava em 1x.
+      if (method === 'credito') {
+        let options = '';
+        for (let i = 1; i <= 10; i++) {
+          options += `<option value="${i}" ${i === 10 ? 'selected' : ''}>${i}x</option>`;
+        }
+        select.innerHTML = options;
+        document.getElementById('pgto-entrada-row').classList.remove('hidden-row');
+        document.getElementById('pgto-select-row').classList.remove('hidden-row');
+      } else {
+        select.innerHTML = '<option value="1">1x (À vista)</option>';
+        document.getElementById('pgto-entrada-row').classList.add('hidden-row');
+        document.getElementById('pgto-select-row').classList.add('hidden-row');
+        document.getElementById('pgto-entrada').value = '';
+      }
+      
+      // Reinicializa o seletor customizado se existir
+      if (typeof initVRSelects === 'function') {
+        const container = select.parentElement;
+        if (container && container.classList.contains('vr-select-container')) {
+           const trigger = container.querySelector('.vr-select-trigger');
+           const optionsWrap = container.querySelector('.vr-select-options');
+           if (trigger) trigger.remove();
+           if (optionsWrap) optionsWrap.remove();
+           select.classList.remove('hidden-select');
+           container.outerHTML = select.outerHTML;
+        }
+        initVRSelects();
+      }
+      
+      calcPagamento();
+    }
+
+    // ── NAVEGAÇÃO ─────────────────────────────────────────────────────────────────
+    function goTo(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('page-' + page).classList.add('active');
+      if (page === 'orca') {
+        document.querySelectorAll('.nav-tab')[0].classList.add('active');
+        refreshStoneDropdown();
+      } else if (page === 'hist') {
+        document.querySelectorAll('.nav-tab')[1].classList.add('active');
+        loadBudgetHistory();
+      } else if (page === 'config') {
+        document.querySelectorAll('.nav-tab')[2].classList.add('active');
+      }
+    }
+
+    let historyData = [];
+
+    async function loadBudgetHistory() {
+      const list = document.getElementById('hist-list');
+      list.innerHTML = '<p style="text-align:center;color:var(--muted);font-size:13px">Carregando...</p>';
+      try {
+        const { data, error } = await sbClient
+          .from('budgets')
+          .select('*')
+          .order('created_at', { ascending: false });
+        console.log('Dados do Supabase recebidos:', data);
+        if (error) throw error;
+        historyData = data || [];
+        renderHistoryList(historyData);
+      } catch (e) {
+        console.error('Erro ao carregar histórico:', e);
+        list.innerHTML = `<p style="text-align:center;color:var(--red);font-size:13px">Erro ao carregar histórico: ${e.message || 'Verifique o RLS'}</p>`;
+      }
+    }
+
+    function renderHistoryList(data) {
+      console.log('Iniciando renderização de', data.length, 'itens no histórico');
+      const list = document.getElementById('hist-list');
+      if (!list) {
+        console.error('ERRO: Elemento hist-list não encontrado!');
+        return;
+      }
+      
+      if (!data || data.length === 0) {
+        list.innerHTML = '<p style="text-align:center;color:var(--muted);font-size:13px">Nenhum orçamento encontrado.</p>';
+        return;
+      }
+      
+      try {
+        const html = data.map(b => {
+          const val = b.total_value || 0;
+          const name = b.customer_name || 'Cliente';
+          const id = b.id || Math.random().toString(36).substr(2, 9);
+          const date = b.created_at ? new Date(b.created_at).toLocaleDateString('pt-BR') : '--/--/----';
+          const time = b.created_at ? new Date(b.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '--:--';
+          
+          return `
+            <div class="hist-item" style="background:rgba(255,255,255,0.3); backdrop-filter:blur(10px); padding:14px 24px; border-radius:12px; border:1px solid rgba(255,255,255,0.4); display:flex; justify-content:space-between; align-items:center; box-shadow:0 4px 15px rgba(0,0,0,0.03); margin-bottom:10px; font-family:'Jost',sans-serif">
+              <div style="flex:2; font-weight:600; color:var(--navy); font-size:14px;">${name}</div>
+              <div style="flex:1; font-size:12px; color:var(--muted); text-align:center;">${date}</div>
+              <div style="flex:0.5; font-size:12px; color:var(--muted); text-align:center;">${time}</div>
+              <div style="flex:1; text-align:right; display:flex; align-items:center; justify-content:flex-end; gap:15px">
+                <div class="hist-val-price" style="color:var(--navy) !important; font-size:16px; margin-bottom:0">${fmt(val)}</div>
+                <button onclick="loadBudgetById('${id}')" style="background:var(--navy); color:var(--white); border:none; padding:6px 14px; border-radius:6px; font-size:10px; text-transform:uppercase; cursor:pointer; font-weight:500; letter-spacing:0.05em">Abrir</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        list.innerHTML = html;
+        console.log('Renderização do histórico concluída com sucesso.');
+      } catch (err) {
+        console.error('ERRO INTERNO NA RENDERIZAÇÃO:', err);
+        list.innerHTML = '<p style="text-align:center;color:var(--red);font-size:13px">Erro interno ao desenhar a lista.</p>';
+      }
+    }
+
+    function loadBudgetById(id) {
+      const b = historyData.find(x => String(x.id) === String(id));
+      if (b) {
+        loadBudgetIntoForm(b);
+        goTo('orca');
+      }
+    }
+
+    function filterHistory() {
+      const search = document.getElementById('hist-search').value.toLowerCase();
+      const start = document.getElementById('hist-date-start').value;
+      const end = document.getElementById('hist-date-end').value;
+      
+      const filtered = historyData.filter(b => {
+        const matchesName = b.customer_name.toLowerCase().includes(search);
+        const bDate = b.created_at.split('T')[0];
+        const matchesStart = !start || bDate >= start;
+        const matchesEnd = !end || bDate <= end;
+        return matchesName && matchesStart && matchesEnd;
+      });
+      renderHistoryList(filtered);
+    }
+
+    function loadBudgetIntoForm(b) {
+      console.log('--- INICIANDO RESTAURAÇÃO ---');
+      console.log('Objeto recebido:', JSON.stringify(b));
+      if (!b) return;
+
+      try {
+        // 1. Reset Total do Formulário
+        document.getElementById('campo-cliente').value = '';
+        document.getElementById('metal').value = '';
+        document.getElementById('grams').value = '';
+        stoneBlocks = [];
+        blockCounter = 0;
+        clienteNome = '';
+        
+        // 2. Preenchimento Nome
+        const nome = b.customer_name || 'Sem nome';
+        document.getElementById('campo-cliente').value = nome;
+        clienteNome = nome;
+        
+        if (b.items) {
+          console.log('Restaurando itens:', b.items);
+          
+          // Metal
+          if (b.items.metal) {
+            const m = String(b.items.metal).toLowerCase().trim();
+            document.getElementById('metal').value = m;
+          }
+          
+          // Peso (Usa timeout curto para garantir que o navegador processe o valor numérico)
+          if (b.items.grams !== undefined && b.items.grams !== null) {
+            const gValue = b.items.grams.toString();
+            console.log('Restaurando gramas:', gValue);
+            document.getElementById('grams').value = gValue;
+          }
+          
+          // Pedras
+          if (b.items.pedras && Array.isArray(b.items.pedras)) {
+            stoneBlocks = b.items.pedras.map((p, idx) => {
+              if (!p) return null;
+              const pStone = String(p.stone || '').toLowerCase().trim();
+              const pSize = String(p.size || '').toLowerCase().trim();
+              
+              const row = stoneData.find(r => 
+                String(r.stone || '').toLowerCase().trim() === pStone && 
+                String(r.size || '').toLowerCase().trim() === pSize
+              );
+              
+              return {
+                id: idx + 1,
+                stone: row ? row.stone : (p.stone || ''),
+                size: row ? row.size : (p.size || ''),
+                qty: p.qty || 1,
+                unitPrice: row ? row.price : 0
+              };
+            }).filter(x => x !== null);
+            blockCounter = stoneBlocks.length;
+          }
+        }
+        
+        // 3. Sync UI e Cálculos
+        console.log('Finalizando restauração UI...');
+        onMetalChange(); // Atualiza visibilidade
+        if (stoneBlocks.length === 0) addStoneBlock();
+        renderStoneBlocks();
+        
+        // Dispara o cálculo final com um leve delay para garantir que os inputs foram registrados
+        setTimeout(() => {
+          calc();
+          console.log('Cálculo de restauração concluído.');
+        }, 50);
+
+        goTo('orca');
+        window.scrollTo(0, 0);
+      } catch (err) {
+        console.error('ERRO CRÍTICO NA RESTAURAÇÃO:', err);
+      }
+    }
+
+    // ── INICIALIZAÇÃO ─────────────────────────────────────────────────────────────
+    window.addEventListener('load', () => {
+      if (window.location.protocol === 'file:') {
+        alert('⚠️ ATENÇÃO: Você está abrindo a calculadora como um arquivo local. O Histórico e as Cotações ao vivo NÃO funcionarão assim.\n\nPor favor, use o servidor pelo link: http://localhost:8081');
+      }
+      fetchPrices();
+      loadAppConfig();
+    });
+
+    function fetchPrices() {
+      // Manual SEMPRE visível — sem async, sem await, sem bloquear
+      document.getElementById('manual-box').style.display = 'block';
+
+      // Cache imediato se existir
+      try {
+        const cache = JSON.parse(localStorage.getItem('vr_cotacoes') || 'null');
+        if (cache && cache.gold) {
+          goldPrice = cache.gold;
+          silverPrice = cache.silver || null;
+          document.getElementById('gval').textContent = fmt(goldPrice) + '/g';
+          if (silverPrice) document.getElementById('sval').textContent = fmt(silverPrice) + '/g';
+          document.getElementById('gbadge').innerHTML = '<span class="badge badge-warn">cache</span>';
+          document.getElementById('sbadge').innerHTML = '<span class="badge badge-warn">cache</span>';
+          calc();
+        }
+      } catch (e) { }
+
+      // Tenta API em background — completamente isolado, nunca bloqueia
+      setTimeout(() => {
+        fetch('https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/xau/brl.json')
+          .then(r => r.json())
+          .then(d => {
+            const xauBRL = d?.brl;
+            if (!xauBRL) throw new Error();
+            return fetch('https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/xag/brl.json')
+              .then(r => r.json())
+              .then(d2 => {
+                const xagBRL = d2?.brl;
+                if (!xagBRL) throw new Error();
+                goldPrice = xauBRL / TROY;
+                silverPrice = xagBRL / TROY;
+                const hoje = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                localStorage.setItem('vr_cotacoes', JSON.stringify({ gold: goldPrice, silver: silverPrice, data: hoje }));
+                document.getElementById('gval').textContent = fmt(goldPrice) + '/g';
+                document.getElementById('sval').textContent = fmt(silverPrice) + '/g';
+                document.getElementById('gbadge').innerHTML = '<span class="badge">ao vivo</span>';
+                document.getElementById('sbadge').innerHTML = '<span class="badge">ao vivo</span>';
+                document.getElementById('manual-box').style.display = 'none';
+                if (typeof calc === 'function') calc();
+              });
+          })
+          .catch(() => {
+            // Tenta AwesomeAPI como segundo fallback
+            fetch('https://economia.awesomeapi.com.br/json/last/XAU-BRL,XAG-BRL')
+              .then(r => r.json())
+              .then(d => {
+                const xau = parseFloat(d.XAUBRL?.bid);
+                const xag = parseFloat(d.XAGBRL?.bid);
+                if (!xau || !xag) return;
+                goldPrice = xau / TROY;
+                silverPrice = xag / TROY;
+                const hoje = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                localStorage.setItem('vr_cotacoes', JSON.stringify({ gold: goldPrice, silver: silverPrice, data: hoje }));
+                document.getElementById('gval').textContent = fmt(goldPrice) + '/g';
+                document.getElementById('sval').textContent = fmt(silverPrice) + '/g';
+                document.getElementById('gbadge').innerHTML = '<span class="badge">ao vivo</span>';
+                document.getElementById('sbadge').innerHTML = '<span class="badge">ao vivo</span>';
+                document.getElementById('manual-box').style.display = 'none';
+                calc();
+              })
+              .catch(() => { }); // Silencioso — manual já está visível
+          });
+      }, 100);
+    }
+    function onMetalChange() { calc(); }
+
+    // ── MÚLTIPLAS PEDRAS ──────────────────────────────────────────────────────────
+    let stoneBlocks = []; // [{id, stone, size, qty, unitPrice}]
+    let blockCounter = 0;
+
+    function refreshStoneDropdown() {
+      const noMsg = document.getElementById('no-stones-msg');
+      const fields = document.getElementById('stone-fields');
+      const btn = document.getElementById('btn-add-stone');
+      if (!stoneData.length) {
+        noMsg.style.display = 'block';
+        fields.style.display = 'none';
+        return;
+      }
+      noMsg.style.display = 'none';
+      fields.style.display = 'block';
+      // btn.style.display = 'inline-block'; // Removido: renderStoneBlocks agora controla isso
+      // se não há blocos ainda, cria o primeiro
+      if (stoneBlocks.length === 0) addStoneBlock();
+    }
+
+    function addStoneBlock() {
+      const id = ++blockCounter;
+      stoneBlocks.push({ id, stone: '', size: '', qty: 1, unitPrice: 0 });
+      renderStoneBlocks();
+    }
+
+    function removeStoneBlock(id) {
+      stoneBlocks = stoneBlocks.filter(b => b.id !== id);
+      if (stoneBlocks.length === 0) addStoneBlock();
+      else renderStoneBlocks();
+      calc();
+    }
+
+    function renderStoneBlocks() {
+      const list = document.getElementById('stones-list');
+      list.innerHTML = '';
+      stoneBlocks.forEach((block, idx) => {
+        const div = document.createElement('div');
+        div.style.cssText = 'margin-bottom:1.5rem; padding-bottom:1.5rem; border-bottom: 1px solid rgba(255,255,255,0.2)';
+        if (idx === stoneBlocks.length - 1) {
+          div.style.marginBottom = '0';
+          div.style.paddingBottom = '0';
+          div.style.borderBottom = 'none';
+        }
+        const stoneOptions = ['<option value="">Nenhuma / sem pedra</option>',
+          ...[...new Set(stoneData.map(r => r.stone))].sort().map(s =>
+            `<option value="${s}" ${block.stone === s ? 'selected' : ''}>${s}</option>`),
+          `<option value="custom" ${block.stone === 'custom' ? 'selected' : ''}>Pedra personalizada</option>`
+        ].join('');
+        const sizeOptions = block.stone
+          ? ['<option value="">Selecione…</option>',
+            ...[...new Set(stoneData.filter(r => r.stone === block.stone).map(r => r.size))].map(s =>
+              `<option value="${s}" ${block.size === s ? 'selected' : ''}>${s}</option>`)
+          ].join('')
+          : '<option value="">Selecione…</option>';
+        div.innerHTML = `
+      ${stoneBlocks.length > 1 ? `
+      <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:4px">
+        <button onclick="removeStoneBlock(${block.id})" style="font-size:10px;color:var(--muted);text-decoration:underline;background:none;border:none;cursor:pointer;font-family:'Jost',sans-serif">remover</button>
+      </div>` : ''}
+      <div class="field" style="margin-bottom:0">
+        <label>Tipo de pedra</label>
+        <div class="sel-wrap">
+          <select onchange="onBlockStoneChange(${block.id}, this.value)">${stoneOptions}</select>
+        </div>
+      </div>
+      
+      ${block.stone ? `
+        <div class="row2" style="margin-top:0.6rem">
+          ${block.stone === 'custom' ? `
+            <div class="field" style="margin-bottom:0">
+              <label>Nome customizado</label>
+              <input type="text" placeholder="Ex: Rubi..." value="${block.customName || ''}" oninput="onBlockCustomNameChange(${block.id}, this.value)">
+            </div>
+          ` : `
+            <div class="field" style="margin-bottom:0">
+              <label>Tamanho / peso</label>
+              <div class="sel-wrap">
+                <select onchange="onBlockSizeChange(${block.id}, this.value)">${sizeOptions}</select>
+              </div>
+            </div>
+          `}
+          
+          <div class="field" style="margin-bottom:0">
+            <label>Quantidade</label>
+            <input type="number" value="${block.qty}" min="1" step="1" oninput="onBlockQtyChange(${block.id}, this.value)">
+          </div>
+        </div>
+
+        ${block.stone === 'custom' ? `
+          <div class="field" style="margin-top:0.6rem; margin-bottom:0">
+            <label>Preço unitário (R$)</label>
+            <input type="number" value="${block.unitPrice || ''}" step="0.01" oninput="onBlockPriceChange(${block.id}, this.value)">
+          </div>
+        ` : ''}
+      ` : ''}
+    `;
+        list.appendChild(div);
+      });
+
+      // Só mostra "Adicionar pedra" se a primeira pedra estiver selecionada
+      const btn = document.getElementById('btn-add-stone');
+      if (btn) {
+        const firstStoneSelected = stoneBlocks.length > 0 && (stoneBlocks[0].stone !== '' && (stoneBlocks[0].stone === 'custom' || stoneBlocks[0].size !== ''));
+        btn.style.display = firstStoneSelected ? 'inline-block' : 'none';
+      }
+    }
+
+    function onBlockStoneChange(id, val) {
+      const b = stoneBlocks.find(b => b.id === id);
+      b.stone = val; b.size = ''; b.unitPrice = 0; b.customName = '';
+      renderStoneBlocks(); calc();
+    }
+    function onBlockCustomNameChange(id, val) {
+      stoneBlocks.find(b => b.id === id).customName = val; calc();
+    }
+    function onBlockSizeChange(id, val) {
+      const b = stoneBlocks.find(b => b.id === id);
+      b.size = val;
+      const row = stoneData.find(r => r.stone === b.stone && r.size === val);
+      b.unitPrice = row ? row.price : 0;
+      renderStoneBlocks(); calc();
+    }
+    function onBlockQtyChange(id, val) {
+      stoneBlocks.find(b => b.id === id).qty = parseInt(val) || 1; calc();
+    }
+    function onBlockPriceChange(id, val) {
+      stoneBlocks.find(b => b.id === id).unitPrice = parseFloat(val) || 0; calc();
+    }
+
+    // ── CÁLCULO ───────────────────────────────────────────────────────────────────
+    function calc() {
+      const metal = document.getElementById('metal').value;
+      const gramsRaw = document.getElementById('grams').value.replace(',', '.');
+      const grams = parseFloat(gramsRaw) || 0;
+
+      let metalPart = 0, metalLabel = 'Metal';
+      if (metal === 'ouro' && goldPrice && grams) {
+        metalPart = goldPrice * 1.30 * grams;
+        metalLabel = 'Ouro 18k';
+      } else if (metal === 'prata' && silverPrice && grams) {
+        metalPart = (silverPrice + 30) * 3 * grams;
+        metalLabel = 'Prata';
+      }
+
+      // pedras: soma todos os blocos (no discount for stones)
+      const stoneLines = [];
+      let totalStonePart = 0;
+      stoneBlocks.forEach(b => {
+        if (!b.stone) return;
+        if (b.stone !== 'custom' && !b.size) return;
+        
+        const part = (b.unitPrice + 9) * 2.5 * b.qty;
+        totalStonePart += part;
+        const label = b.stone === 'custom' ? (b.customName || 'Pedra personalizada') : b.stone;
+        const sizeInfo = b.stone === 'custom' ? '' : ` — ${b.size}`;
+        stoneLines.push({ label: `${label}${sizeInfo} × ${b.qty} und`, val: part });
+      });
+
+      const totalEl = document.getElementById('total');
+      const bd = document.getElementById('breakdown');
+
+      if (!metalPart && !totalStonePart) {
+        totalEl.textContent = 'R$ —';
+        bd.style.display = 'none';
+        updateCalcMemory(null);
+        const card = document.querySelector('.result-card');
+        if (card) card.classList.remove('active');
+        return;
+      }
+
+      // Cálculo Base P (Referência 10x)
+      const sumBaseP = metalPart + totalStonePart;
+      window.rawBaseP = sumBaseP;
+      window.totalBasePArredondado = Math.ceil(sumBaseP / 5) * 5;
+
+      // Por padrão, mostra o valor base (10x) inicialmente
+      totalBase = window.totalBasePArredondado; 
+
+      // monta breakdown (usando valores 10x inicialmente)
+      let bdHtml = '';
+      if (metalPart) {
+        bdHtml += `<div class="brow"><span class="brow-label">${metalLabel}</span><span class="brow-val">${fmt(metalPart)}</span></div>`;
+      }
+      stoneLines.forEach(l => {
+        bdHtml += `<div class="brow"><span class="brow-label">${l.label}</span><span class="brow-val">${fmt(l.val)}</span></div>`;
+      });
+      window.baseBreakdownHTML = bdHtml;
+      bd.innerHTML = bdHtml;
+      bd.style.display = 'flex';
+
+      // mostra botão gerar orçamento
+      const btnGerar = document.getElementById('btn-gerar');
+      if (btnGerar) btnGerar.style.display = 'block';
+
+      // Salva partes para escala proporcional no calcPagamento
+      window.lastCalcParts = { metalPart, totalStonePart, stoneLines, metalLabel };
+
+      calcPagamento();
+      updateCalcMemory({ metal, grams, metalPart, metalLabel, stoneLines, totalStonePart, sum: window.totalBasePArredondado });
+      
+      const card = document.querySelector('.result-card');
+      if (card) card.classList.add('active');
+    }
+
+    // ── MEMÓRIA DE CÁLCULO (na config) ───────────────────────────────────────────
+    function updateCalcMemory(data) {
+      const box = document.getElementById('calc-memory-box');
+      const rows = document.getElementById('calc-memory-rows');
+      if (!data) { box.style.display = 'none'; return; }
+      box.style.display = 'block';
+      let html = '';
+      if (data.metalPart) {
+        if (data.metal === 'ouro' && goldPrice) {
+          html += row(`Ouro: ${fmtN(goldPrice)}/g × 1,30 × ${fmtN(data.grams)}g`, fmt(data.metalPart));
+        } else if (data.metal === 'prata' && silverPrice) {
+          html += row(`Prata: (${fmtN(silverPrice)}/g + R$30) × 3 × ${fmtN(data.grams)}g`, fmt(data.metalPart));
+        }
+      }
+      data.stoneLines?.forEach(l => {
+        html += row(l.label, fmt(l.val));
+      });
+      html += row('Total Base (Ref. 10x)', fmt(data.sum), true);
+      rows.innerHTML = html;
+    }
+    function row(label, val, bold = false) {
+      const w = bold ? 'font-weight:500;color:var(--navy)' : '';
+      return `<div class="calc-memory-row" style="${w}"><span>${label}</span><span>${val}</span></div>`;
+    }
+
+    // ── TABELA DE PEDRAS EMBUTIDA ─────────────────────────────────────────────────
+    const PEDRAS_EMBUTIDAS = [
+      // MOISSANITA
+      { stone: 'Moissanita', size: '0,8mm | 0,003ct', price: 1.00 },
+      { stone: 'Moissanita', size: '0,9mm | 0,004ct', price: 1.50 },
+      { stone: 'Moissanita', size: '1,0mm | 0,005ct', price: 1.50 },
+      { stone: 'Moissanita', size: '1,2mm | 0,008ct', price: 2.00 },
+      { stone: 'Moissanita', size: '1,3mm | 0,010ct', price: 2.50 },
+      { stone: 'Moissanita', size: '1,5mm | 0,015ct', price: 4.00 },
+      { stone: 'Moissanita', size: '1,7mm | 0,020ct', price: 5.00 },
+      { stone: 'Moissanita', size: '2,0mm | 0,035ct', price: 9.00 },
+      { stone: 'Moissanita', size: '2,2mm | 0,045ct', price: 12.00 },
+      { stone: 'Moissanita', size: '2,4mm | 0,050ct', price: 15.00 },
+      { stone: 'Moissanita', size: '2,5mm | 0,065ct', price: 18.00 },
+      { stone: 'Moissanita', size: '2,7mm | 0,075ct', price: 20.00 },
+      { stone: 'Moissanita', size: '2,9mm | 0,090ct', price: 22.50 },
+      // DIAMANTE NATURAL
+      { stone: 'Diamante Natural', size: '1/2pt | 1,0mm', price: 11.00 },
+      { stone: 'Diamante Natural', size: '0,6pt | 1,1mm', price: 13.50 },
+      { stone: 'Diamante Natural', size: '0,7pt | 1,15mm', price: 15.50 },
+      { stone: 'Diamante Natural', size: '0,8pt | 1,2mm', price: 17.50 },
+      { stone: 'Diamante Natural', size: '0,9pt | 1,25mm', price: 19.00 },
+      { stone: 'Diamante Natural', size: '1pt | 1,3mm', price: 21.00 },
+      { stone: 'Diamante Natural', size: '1,25pt | 1,4mm', price: 26.00 },
+      { stone: 'Diamante Natural', size: '1,5pt | 1,5mm', price: 31.00 },
+      { stone: 'Diamante Natural', size: '1,8pt | 1,6mm', price: 37.50 },
+      { stone: 'Diamante Natural', size: '2pt | 1,65mm', price: 42.00 },
+      { stone: 'Diamante Natural', size: '2,5pt | 1,75mm', price: 52.50 },
+      { stone: 'Diamante Natural', size: '3pt | 1,85mm', price: 75.00 },
+      { stone: 'Diamante Natural', size: '3,1pt | 1,95mm', price: 77.50 },
+      { stone: 'Diamante Natural', size: '3,25pt | 2,0mm', price: 80.00 },
+      { stone: 'Diamante Natural', size: '3,5pt | 2,1mm', price: 87.00 },
+      { stone: 'Diamante Natural', size: '4pt | 2,15mm', price: 100.00 },
+      { stone: 'Diamante Natural', size: '4,5pt | 2,2mm', price: 110.00 },
+      { stone: 'Diamante Natural', size: '5pt | 2,25mm', price: 125.00 },
+      { stone: 'Diamante Natural', size: '5,5pt | 2,3mm', price: 135.00 },
+      { stone: 'Diamante Natural', size: '5,8pt | 2,35mm', price: 145.00 },
+      { stone: 'Diamante Natural', size: '6,4pt | 2,5mm', price: 166.00 },
+      { stone: 'Diamante Natural', size: '7pt | 2,6mm', price: 185.00 },
+      { stone: 'Diamante Natural', size: '8pt | 2,7mm', price: 215.00 },
+      { stone: 'Diamante Natural', size: '9pt | 2,8mm', price: 290.00 },
+      { stone: 'Diamante Natural', size: '10pt | 2,9mm', price: 325.00 },
+      { stone: 'Diamante Natural', size: '12pt | 3,0mm', price: 385.00 },
+      { stone: 'Diamante Natural', size: '13pt | 3,1mm', price: 420.00 },
+      { stone: 'Diamante Natural', size: '15pt | 3,4mm', price: 620.00 },
+      { stone: 'Diamante Natural', size: '16pt | 3,45mm', price: 660.00 },
+      { stone: 'Diamante Natural', size: '18pt | 3,6mm', price: 740.00 },
+      { stone: 'Diamante Natural', size: '20pt | 3,8mm', price: 950.00 },
+      { stone: 'Diamante Natural', size: '25pt | 4,0mm', price: 1250.00 },
+      { stone: 'Diamante Natural', size: '30pt | 4,3mm', price: 1750.00 },
+      { stone: 'Diamante Natural', size: '35pt | 4,5mm', price: 2150.00 },
+      { stone: 'Diamante Natural', size: '40pt | 4,7mm', price: 2950.00 },
+      { stone: 'Diamante Natural', size: '45pt | 4,8mm', price: 3550.00 },
+      { stone: 'Diamante Natural', size: '50pt | 5,0mm', price: 4200.00 },
+    ];
+
+    function carregarPedrasNotion() {
+      stoneData = PEDRAS_EMBUTIDAS;
+      loadedFiles = [{ name: 'embutido', rows: stoneData }];
+      const noMsg = document.getElementById('no-stones-msg');
+      const fields = document.getElementById('stone-fields');
+      const btn = document.getElementById('btn-add-stone');
+      noMsg.style.display = 'none';
+      fields.style.display = 'block';
+      if (btn) btn.style.display = 'inline-block';
+      if (stoneBlocks.length === 0) addStoneBlock();
+      renderStoneCards();
+      initVRSelects();
+    }
+
+    function renderStoneCards() {
+      const container = document.getElementById('stone-cards');
+      if (!container) return;
+      container.innerHTML = '';
+      const byStone = {};
+      stoneData.forEach(r => {
+        if (!byStone[r.stone]) byStone[r.stone] = 0;
+        byStone[r.stone]++;
+      });
+      if (!Object.keys(byStone).length) {
+        container.innerHTML = '<p style="font-size:12px;color:var(--muted);font-style:italic">Nenhuma pedra carregada ainda.</p>';
+        return;
+      }
+      Object.keys(byStone).sort().forEach(stone => {
+        const card = document.createElement('div');
+        card.className = 'stone-card';
+        card.innerHTML = `
+          <div style="width:100%; display:flex; justify-content:space-between; align-items:center">
+            <div>
+              <div class="stone-card-name" style="margin-bottom:4px">${stone}</div>
+              <div class="stone-card-status">
+                <span class="status-dot loaded"></span>
+                ${byStone[stone]} variações ativas
+              </div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:10px; color:var(--muted); font-style:italic">Última atualização</div>
+              <div style="font-size:12px; color:var(--navy); font-weight:500">27/03/2024</div>
+            </div>
+          </div>`;
+        container.appendChild(card);
+      });
+    }
+
+    function voltarFormProposta() {
+      document.getElementById('proposta-form-area').style.display = 'block';
+      document.getElementById('proposta-print').style.display = 'none';
+    }
+    function handleFilesManual(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const wb = XLSX.read(ev.target.result, { type: 'binary' });
+          let allRows = [];
+          wb.SheetNames.forEach(sn => {
+            const rows = XLSX.utils.sheet_to_json(wb.Sheets[sn], { header: 1, defval: '' });
+            if (rows.length >= 2) allRows = allRows.concat(rows);
+          });
+          const header = allRows[0].map(c => String(c).toLowerCase().trim());
+          let iS = 0, iT = 1, iP = 2;
+          header.forEach((h, i) => {
+            if (/pedra|stone/i.test(h)) iS = i;
+            if (/tamanho|size/i.test(h)) iT = i;
+            if (/pre[cç]o|price/i.test(h)) iP = i;
+          });
+          const parsed = [];
+          for (let i = 1; i < allRows.length; i++) {
+            const r = allRows[i];
+            const stone = String(r[iS] || '').trim();
+            const size = String(r[iT] || '').trim();
+            const price = parseFloat(String(r[iP] || '').replace(/[R$\s.]/g, '').replace(',', '.')) || 0;
+            if (stone && size) parsed.push({ stone, size, price });
+          }
+          stoneData = [...stoneData, ...parsed];
+          loadedFiles = [{ name: 'manual', rows: stoneData }];
+          renderStoneCards();
+          refreshStoneDropdown();
+        } catch (err) { alert('Erro ao ler arquivo.'); }
+      };
+      reader.readAsBinaryString(file);
+      e.target.value = '';
+    }
+
+    // ── PROPOSTA COMERCIAL ────────────────────────────────────────────────────────
+    function voltarFormProposta() {
+      document.getElementById('proposta-form-area').style.display = 'block';
+      document.getElementById('proposta-print').style.display = 'none';
+    }
+
+    // ── CÁLCULO DE PAGAMENTO (10x Base / Descontos Progressivos) ──────────────────
+    async function calcPagamento() {
+      const parent = document.getElementById('pgto-card');
+      if (!window.totalBasePArredondado) {
+        if (parent) parent.style.display = 'none';
+        return;
+      }
+      if (parent) parent.style.display = 'block';
+
+      const method = document.getElementById('pgto-method').value;
+      const select = document.getElementById('pgto-select');
+      const entradaInput = document.getElementById('pgto-entrada');
+      
+      // Captura entrada limpando a máscara
+      let entry = 0;
+      if (entradaInput.value) {
+        entry = parseFloat(entradaInput.value.replace(/[R$\s.]/g, '').replace(',', '.')) || 0;
+      }
+
+      let finalValueArredondado = 0;
+      let n = parseInt(select.value) || 1;
+
+      if (method === 'debito') {
+        const discountPct = 10.55;
+        const finalValueRaw = window.totalBasePArredondado * (1 - (discountPct / 100));
+        finalValueArredondado = Math.ceil(finalValueRaw / 5) * 5;
+        // Limpa entrada no débito
+        if (entry > 0) {
+          entradaInput.value = '';
+          entry = 0;
+        }
+      } else {
+        // Crédito: Regra do bônus na entrada
+        const bonus = entry * 0.1055;
+        const finalValueRef = window.totalBasePArredondado - bonus;
+        finalValueArredondado = Math.ceil(finalValueRef / 5) * 5;
+        
+        // Atualiza labels do parcelamento em tempo real
+        const remaining = finalValueArredondado - entry;
+        const options = select.querySelectorAll('option');
+        options.forEach(opt => {
+          const px = parseInt(opt.value);
+          const valParcela = remaining / px;
+          if (px === 1) opt.textContent = `À vista — ${fmt(finalValueArredondado)}`;
+          else opt.textContent = `${px}x de ${fmt(valParcela)}`;
+        });
+        
+        // Atualiza UI customizada dos selects se aberta
+        const container = select.parentElement;
+        if (container && container.classList.contains('vr-select-container')) {
+          const optDivs = container.querySelectorAll('.vr-select-option');
+          optDivs.forEach((div, idx) => {
+            div.textContent = options[idx].textContent;
+          });
+          const trigger = container.querySelector('.vr-select-trigger');
+          if (trigger) trigger.textContent = select.options[select.selectedIndex].textContent;
+        }
+      }
+      
+      document.getElementById('total').textContent = fmt(finalValueArredondado);
+
+      // Atualiza o breakdown com valores proporcionais
+      const bd = document.getElementById('breakdown');
+      if (bd && window.lastCalcParts && window.totalBasePArredondado > 0) {
+        const ratio = finalValueArredondado / window.totalBasePArredondado;
+        let bdHtml = '';
+        const { metalPart, stoneLines, metalLabel } = window.lastCalcParts;
+        if (metalPart) {
+          bdHtml += `<div class="brow"><span class="brow-label">${metalLabel}</span><span class="brow-val">${fmt(metalPart * ratio)}</span></div>`;
+        }
+        stoneLines.forEach(l => {
+          bdHtml += `<div class="brow"><span class="brow-label">${l.label}</span><span class="brow-val">${fmt(l.val * ratio)}</span></div>`;
+        });
+        bd.innerHTML = bdHtml;
+      }
+    }
+
+    // ── PROPOSTA ──────────────────────────────────────────────────────────────────
+    async function abrirProposta() {
+      // 1. Verificação de Sanidade: Existe um cálculo válido?
+      if (!window.lastCalcParts || !window.rawBaseP) {
+        alert('⚠️ Por favor, preencha os dados e realize um cálculo antes de gerar o orçamento.');
+        return;
+      }
+
+      const linhas = document.getElementById('proposta-resumo-linhas');
+      const bd = document.getElementById('breakdown');
+      if (!linhas) return;
+      linhas.innerHTML = '';
+      
+      // 2. Captura dados do motor de cálculo
+      const method = document.getElementById('pgto-method').value;
+      const select = document.getElementById('pgto-select');
+      const n = parseInt(select.value) || 1;
+      const entryRaw = document.getElementById('pgto-entrada').value.replace(/[R$\s.]/g, '').replace(',', '.');
+      const entry = parseFloat(entryRaw) || 0;
+      
+      let finalValueArredondado = 0;
+      let methodLabel = '';
+
+      if (method === 'debito') {
+        const discountPct = 10.55;
+        const finalValueRaw = window.totalBasePArredondado * (1 - (discountPct / 100));
+        finalValueArredondado = Math.ceil(finalValueRaw / 5) * 5;
+        methodLabel = 'À vista — Débito/Pix';
+      } else {
+        // Crédito: Regra do bônus na entrada
+        const bonus = entry * 0.1055;
+        const finalValueRef = window.totalBasePArredondado - bonus;
+        finalValueArredondado = Math.ceil(finalValueRef / 5) * 5;
+        methodLabel = n === 1 ? 'Crédito à vista' : `Crédito ${n}x`;
+      }
+
+      const ratio = window.totalBasePArredondado > 0 ? (finalValueArredondado / window.totalBasePArredondado) : 1;
+
+      // 4. Renderiza Breakdown de Itens
+      const { metalPart, stoneLines, metalLabel } = window.lastCalcParts;
+      if (metalPart) {
+        const div = document.createElement('div');
+        div.className = 'proposta-resumo-row';
+        div.innerHTML = `<span>${metalLabel}</span><span>${fmt(metalPart * ratio)}</span>`;
+        linhas.appendChild(div);
+      }
+      stoneLines.forEach(l => {
+        const div = document.createElement('div');
+        div.className = 'proposta-resumo-row';
+        div.innerHTML = `<span>${l.label}</span><span>${fmt(l.val * ratio)}</span>`;
+        linhas.appendChild(div);
+      });
+
+      // 5. Bloco de Pagamento Detalhado
+      const divPgto = document.createElement('div');
+      divPgto.className = 'proposta-resumo-row';
+      divPgto.style.borderTop = '1px solid var(--border)';
+      divPgto.style.marginTop = '12px';
+      divPgto.style.paddingTop = '12px';
+      divPgto.style.flexDirection = 'column';
+      divPgto.style.gap = '6px';
+      divPgto.style.alignItems = 'flex-start';
+
+      let html = `<span style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);font-weight:600;">Condições de Pagamento</span>`;
+      html += `<div style="width:100%; display:flex; justify-content:space-between; align-items:center">
+                <span style="color:var(--navy);font-weight:500;">${methodLabel}</span>
+                <span style="color:var(--navy);font-weight:600;font-size:16px">${fmt(finalValueArredondado)}</span>
+              </div>`;
+      
+      if (n > 1) {
+        const remaining = finalValueArredondado - entry;
+        const portion = remaining / n;
+        html += `<div style="font-size:13px; color:var(--navy); font-weight:600; margin-top:8px; background:rgba(255,255,255,0.2); padding:8px 12px; border-radius:6px; border:1px solid var(--gold)">
+                  ${entry > 0 ? `Entrada de ${fmt(entry)} + ` : ''}
+                  ${n}x de ${fmt(portion)}
+                 </div>`;
+      }
+
+      divPgto.innerHTML = html;
+      linhas.appendChild(divPgto);
+
+      // 6. Salvamento Persistente no Supabase (Módulo de Histórico)
+      try {
+        const gramsRaw = document.getElementById('grams').value.replace(',', '.');
+        const budgetToSave = {
+          customer_name: document.getElementById('campo-cliente').value || 'Cliente',
+          total_value: finalValueArredondado,
+          items: {
+            metal: document.getElementById('metal').value,
+            grams: parseFloat(gramsRaw) || 0,
+            pedras: stoneBlocks.map(b => ({ 
+              stone: b.stone, 
+              size: b.size, 
+              qty: b.qty, 
+              unitPrice: b.unitPrice,
+              customName: b.customName || null 
+            }))
+          }
+        };
+        const { error } = await sbClient.from('budgets').insert([budgetToSave]);
+        if (error) console.error('Erro ao salvar no Histórico:', error);
+      } catch (e) {
+        console.error('Falha na integração com Supabase:', e);
+      }
+
+      // 7. Transição Visual
+      document.getElementById('proposta-form-area').style.display = 'block';
+      document.getElementById('proposta-print').style.display = 'none';
+      goTo('proposta');
+      
+      // Forçar scroll ao topo absoluto com um leve delay para garantir renderização da aba
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }, 100);
+    }
+
+    fetchPrices();
+    carregarPedrasNotion();
+    onPaymentMethodChange(); // Inicializa o seletor de parcelas e método
+    // mostra nav direto
+    document.querySelector('.nav').style.display = 'flex';
+    // data no print
+    const pd = document.getElementById('print-date');
+    if (pd) pd.textContent = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+
+    initVRSelects();
+
+    // ── IMAGEM ────────────────────────────────────────────────────────────────────
+    let imagemDataURL = null;
+
+    function previewImagem(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        imagemDataURL = ev.target.result;
+        document.getElementById('img-preview').src = imagemDataURL;
+        document.getElementById('img-preview-wrap').style.display = 'block';
+        document.getElementById('img-placeholder').style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // --- FIM ABRIR PROPOSTA UNIFICADA ---
+
+    async function imprimirProposta() {
+      const btn = document.querySelector('.proposta-btn-imprimir');
+      btn.textContent = 'Preparando…';
+      btn.disabled = true;
+
+      const nomePeca = document.getElementById('prop-nome-peca').value.trim() || 'Peça personalizada';
+      const envio = document.getElementById('prop-envio').value;
+      const metal = document.getElementById('metal').value;
+      const grams = parseFloat(document.getElementById('grams').value) || 0;
+      const hoje = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+      const hojeISO = new Date().toISOString().split('T')[0];
+      const totalEl = document.getElementById('total').textContent;
+      const totalNum = parseFloat(totalEl.replace(/[R$\s.]/g, '').replace(',', '.')) || 0;
+
+      // ── busca próximo número no Notion ──
+      let numProposta = propostaNum;
+      try {
+        const resp = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 200,
+            system: `Você é um assistente que consulta o Notion. Retorne APENAS um número JSON. Não adicione texto.`,
+            messages: [{ role: 'user', content: `Quantos registros existem no banco de dados Notion com data_source_id ${NOTION_DS}? Retorne apenas {"count": N}` }]
+          })
+        });
+        // fallback silencioso — usa localStorage
+      } catch (e) { }
+
+      // ── monta documento ──
+      document.getElementById('doc-num').textContent = `Proposta Comercial Nº ${numProposta}`;
+      document.getElementById('doc-cliente').textContent = clienteNome || 'Cliente';
+      document.getElementById('doc-envio').textContent = envio;
+      document.getElementById('doc-data-footer').textContent = hoje;
+      document.getElementById('doc-total').textContent = totalEl;
+
+      // ── condições de pagamento (extraindo da UI atual) ──
+      const entryRaw = document.getElementById('pgto-entrada').value.replace(/[R$\s.]/g, '').replace(',', '.');
+      const entry = parseFloat(entryRaw) || 0;
+      const select = document.getElementById('pgto-select');
+      const n = parseInt(select.value) || 1;
+      const method = document.getElementById('pgto-method').value;
+      const tEl = document.getElementById('total').textContent;
+      
+      let methodLabel = '';
+      if (method === 'debito') methodLabel = 'À vista — Débito/Pix';
+      else if (method === 'credito') methodLabel = n === 1 ? 'Crédito à vista' : `Crédito ${n}x`;
+
+      let pgtoLines = [];
+      pgtoLines.push(`<span style="font-weight:600">${methodLabel}</span>`);
+      pgtoLines.push(`<span style="font-size:18px; font-weight:700; color:var(--navy)">${tEl}</span>`);
+      
+      if (n > 1) {
+        const totalNum = parseFloat(tEl.replace(/[R$\s.]/g, '').replace(',', '.')) || 0;
+        const remaining = totalNum - entry;
+        const portion = remaining / n;
+        if (entry > 0) pgtoLines.push(`<span style="font-size:11px">Entrada de ${fmt(entry)} + ${n}x de ${fmt(portion)}</span>`);
+        else pgtoLines.push(`<span style="font-size:11px">${n}x de ${fmt(portion)}</span>`);
+      }
+      
+      document.getElementById('doc-pgto-val').innerHTML = pgtoLines.join('<br>');
+
+      // imagem
+      const imgWrap = document.getElementById('doc-img-wrap');
+      const imgEl = document.getElementById('doc-img');
+      if (imagemDataURL) {
+        imgEl.src = imagemDataURL;
+        imgWrap.style.display = 'block';
+      } else {
+        imgWrap.style.display = 'none';
+      }
+
+      // itens
+      const metalNome = metal === 'ouro' ? 'Ouro 18k' : metal === 'prata' ? 'Prata 925' : '';
+      let detalhes = '';
+      if (metalNome) detalhes += `<div>Metal: <span>${metalNome}</span></div>`;
+      stoneBlocks.forEach((b, i) => {
+        if (!b.stone) return;
+        const prefix = stoneBlocks.filter(x => x.stone).length > 1 ? `Item ${i + 1}: ` : 'Detalhes: ';
+        detalhes += `<div style="margin-bottom:10px">
+                      <div style="font-weight:600; color:var(--navy); font-size:13px">${prefix}${b.stone === 'custom' ? (b.customName || 'Personalizada') : b.stone}</div>
+                      ${b.size ? `<div style="font-size:12px; color:var(--muted)">Tamanho/Peso: ${b.size}</div>` : ''}
+                      <div style="font-size:12px; color:var(--muted)">Quantidade: ${b.qty} und</div>
+                    </div>`;
+      });
+
+      document.getElementById('doc-itens').innerHTML = `
+    <div class="doc-item">
+      <div class="doc-item-detalhe">${detalhes}</div>
+    </div>`;
+
+      // Supabase: Já salvo no abrirProposta() — se desejar atualizar ou salvar versão final pode descomentar
+      /*
+      try {
+        ...
+      } catch (e) { ... }
+      */
+
+      // incrementa número
+      propostaNum++;
+      localStorage.setItem('vr_proposta_num', propostaNum);
+
+      // ── RESOLUÇÃO DO BOTÃO "VISUALIZAR" ──
+      // Escondemos o formulário da proposta e mostramos o preview A4
+      document.getElementById('proposta-form-area').style.display = 'none';
+      document.getElementById('proposta-print').style.display = 'block';
+      
+      // Scroll para o topo para visualização
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      // Feedback do botão
+      btn.textContent = 'Visualizar orçamento';
+      btn.disabled = false;
+    }
+  </script>
+  <script>
+    // Remove qualquer service worker antigo registrado
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(reg => reg.unregister());
+      });
+    }
+  </script>
+</body>
+
+</html>
