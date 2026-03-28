@@ -62,7 +62,6 @@
     /* ── NAV ─────────────────────────────────────────────────── */
     .nav {
       background: var(--navy);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       padding: 0 5rem;
       display: flex;
       align-items: center;
@@ -146,12 +145,13 @@
 
     .split-right {
       padding: 4.2rem 5rem;
-      background: rgba(247, 244, 239, 0.4);
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
+      background: rgba(255, 255, 255, 0.15); /* Glassmorphism Premium */
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
       display: flex;
       flex-direction: column;
       box-shadow: inset 20px 0 50px rgba(0, 0, 0, 0.02);
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .orca-right .result-card {
@@ -284,13 +284,14 @@
 
     /* cards de entrada */
     .input-card {
-      background: rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.2); /* Glassmorphism Premium */
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-radius: 12px;
       padding: 0.8rem 1.4rem;
-      border: 1px solid rgba(255, 255, 255, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.3);
       margin-bottom: 0.8rem;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -575,8 +576,8 @@
       .nav-tabs {
         width: calc(100% + 32px);
         margin: 10px -16px 0;
-        border-top: 1px solid var(--border);
         display: flex;
+        border: none !important;
       }
 
       .nav-tab {
@@ -586,16 +587,12 @@
         font-size: 11px;
         letter-spacing: 0.08em;
         border-radius: 0;
-        border-top: 2px solid transparent;
-        border-left: none;
-        border-right: none;
-        border-bottom: none;
+        border: none !important;
       }
 
       .nav-tab.active {
-        background: #F7F4EF;
-        border-top: 2px solid var(--navy);
-        color: var(--navy);
+        background: var(--gold) !important;
+        color: var(--white) !important;
       }
 
       /* layout: coluna única */
