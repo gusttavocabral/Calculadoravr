@@ -2563,9 +2563,10 @@
 
       // --- LOGICA CUSTOM SELECT (DURA SYSTEM) ---
       function initVRSelects() {
-        // Pega todos os selects que não estão dentro de um custom container e não são hidden
         document.querySelectorAll('select:not(.hidden-select)').forEach(sel => {
-          if (sel.parentElement.classList.contains('vr-select-container')) return;
+          // Destruir container se já existir para reconstruir labels atualizadas
+          const old = sel.parentNode.querySelector('.vr-select-container');
+          if (old) old.remove();
 
           const container = document.createElement('div');
           container.className = 'vr-select-container';
@@ -2584,15 +2585,15 @@
             const o = document.createElement('div');
             o.className = 'vr-select-option' + (idx === sel.selectedIndex ? ' selected' : '');
             o.textContent = opt.text;
-            o.onclick = () => {
+            o.onclick = (e) => {
+              e.stopPropagation();
               sel.selectedIndex = idx;
               trigger.textContent = opt.text;
               container.classList.remove('open');
-              // Marcar selecionado visualmente
               container.querySelectorAll('.vr-select-option').forEach(el => el.classList.remove('selected'));
               o.classList.add('selected');
-              // Disparar evento original
               sel.dispatchEvent(new Event('change'));
+              sel.dispatchEvent(new Event('input'));
             };
             optionsWrap.appendChild(o);
           });
@@ -2601,17 +2602,8 @@
           trigger.onclick = (e) => {
             e.stopPropagation();
             const isOpen = container.classList.contains('open');
-            // Fechar outros
-            document.querySelectorAll('.vr-select-container').forEach(c => {
-              c.classList.remove('open');
-              c.closest('.input-card')?.classList.remove('z-high');
-              c.closest('.orca-right')?.classList.remove('z-high'); // para o parcelamento
-            });
-            if (!isOpen) {
-              container.classList.add('open');
-              container.closest('.input-card')?.classList.add('z-high');
-              container.closest('.orca-right')?.classList.add('z-high');
-            }
+            document.querySelectorAll('.vr-select-container').forEach(c => c.classList.remove('open'));
+            if (!isOpen) container.classList.add('open');
           };
         });
       }
@@ -2634,7 +2626,7 @@
         const method = document.getElementById('pgto-method').value;
         const select = document.getElementById('pgto-select');
 
-        // Se for Crédito, mostra parcelas de 1 a 10. Se for PIX/Débito, trava em 1x.
+        // Se for Crédito, inicia em 10x sem entrada por padrão
         if (method === 'credito') {
           let options = '';
           for (let i = 1; i <= 10; i++) {
@@ -3398,43 +3390,44 @@
       // ── PROPOSTA ──────────────────────────────────────────────────────────────────
       async function abrirProposta() {
         // 1. Verificação de Sanidade: Existe um cálculo válido?
-        if (!window.lastCalcParts || !window.rawBaseP) {
-          alert('⚠️ Por favor, preencha os dados e realize um cálculo antes de gerar o orçamento.');
+        const baseVal = window.totalBasePArredondado || 0;
+        if (!window.lastCalcParts || baseVal <= 0) {
+          alert('⚠️ Por favor, realize um cálculo válido antes de gerar o orçamento.');
           return;
         }
 
         const linhas = document.getElementById('proposta-resumo-linhas');
-        const bd = document.getElementById('breakdown');
         if (!linhas) return;
         linhas.innerHTML = '';
 
         // 2. Captura dados do motor de cálculo
-        const method = document.getElementById('pgto-method').value;
-        const select = document.getElementById('pgto-select');
-        const n = parseInt(select.value) || 1;
+        const pgtoMethodEl = document.getElementById('pgto-method');
+        const pgtoSelectEl = document.getElementById('pgto-select');
+        if (!pgtoMethodEl || !pgtoSelectEl) return;
+
+        const method = pgtoMethodEl.value;
+        const n = parseInt(pgtoSelectEl.value) || 1;
         const entryRaw = document.getElementById('pgto-entrada').value.replace(/[R$\s.]/g, '').replace(',', '.');
         const entry = parseFloat(entryRaw) || 0;
 
-        // Regra 0.8% por parcela adiantada
+        // 3. Regra 0.8% por parcela adiantada (Sincronizado com calcPagamento)
         const bonus = entry * 0.1055;
-        const finalValueRef = window.totalBasePArredondado - bonus;
+        const finalValueRef = baseVal - bonus;
+        
         let subDiscount = 0;
         if (n === 1) subDiscount = finalValueRef * 0.1055;
         else if (n < 10) subDiscount = finalValueRef * ((10 - n) * 0.008);
         
-        let finalValueArredondado = Math.ceil((finalValueRef - subDiscount) / 5) * 5;
+        const finalValueArredondado = Math.ceil((finalValueRef - subDiscount) / 5) * 5;
         let methodLabel = '';
 
         if (method === 'debito') {
-          const discountPct = 10.55;
-          const finalValueRaw = window.totalBasePArredondado * (1 - (discountPct / 100));
-          finalValueArredondado = Math.ceil(finalValueRaw / 5) * 5;
           methodLabel = 'À vista — Débito/Pix';
         } else {
           methodLabel = n === 1 ? 'Crédito à vista' : `Crédito ${n}x`;
         }
 
-        const ratio = window.totalBasePArredondado > 0 ? (finalValueArredondado / window.totalBasePArredondado) : 1;
+        const ratio = baseVal > 0 ? (finalValueArredondado / baseVal) : 1;
 
         // 4. Renderiza Breakdown de Itens
         const { metalPart, stoneLines, metalLabel } = window.lastCalcParts;
