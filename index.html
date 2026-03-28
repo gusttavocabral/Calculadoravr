@@ -2546,6 +2546,10 @@
       const fmt = v => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
       const fmtN = v => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+      let goldPrice = 395.00; // Fallback inicial (valor aproximado)
+      let silverPrice = 10.50; // Fallback inicial
+      const TROY = 31.1035;
+
       // Máscara de Moeda (Formata R$ enquanto digita)
       function handleMoneyInput(e) {
         let value = e.target.value;
@@ -2556,56 +2560,68 @@
         e.target.value = "R$ " + value;
         calcPagamento();
       }
-
-      const TROY = 31.1035;
-      let goldPrice = 758.99; // Fallback inicial (valor aproximado)
-      let silverPrice = 11.79; // Fallback inicial
-
-      // --- LOGICA CUSTOM SELECT (DURA SYSTEM) ---
       function initVRSelects() {
+        // Pega todos os selects que não foram processados ou precisam de refresh
         document.querySelectorAll('select:not(.hidden-select)').forEach(sel => {
-          // Destruir container se já existir para reconstruir labels atualizadas
-          const old = sel.parentNode.querySelector('.vr-select-container');
-          if (old) old.remove();
-
-          const container = document.createElement('div');
-          container.className = 'vr-select-container';
-          sel.parentNode.insertBefore(container, sel);
-          sel.classList.add('hidden-select');
-
-          const trigger = document.createElement('div');
-          trigger.className = 'vr-select-trigger';
-          trigger.textContent = sel.options[sel.selectedIndex]?.text || 'Selecione...';
-          container.appendChild(trigger);
-
-          const optionsWrap = document.createElement('div');
-          optionsWrap.className = 'vr-select-options';
-
-          Array.from(sel.options).forEach((opt, idx) => {
-            const o = document.createElement('div');
-            o.className = 'vr-select-option' + (idx === sel.selectedIndex ? ' selected' : '');
-            o.textContent = opt.text;
-            o.onclick = (e) => {
-              e.stopPropagation();
-              sel.selectedIndex = idx;
-              trigger.textContent = opt.text;
-              container.classList.remove('open');
-              container.querySelectorAll('.vr-select-option').forEach(el => el.classList.remove('selected'));
-              o.classList.add('selected');
-              sel.dispatchEvent(new Event('change'));
-              sel.dispatchEvent(new Event('input'));
-            };
-            optionsWrap.appendChild(o);
-          });
-
-          container.appendChild(optionsWrap);
-          trigger.onclick = (e) => {
-            e.stopPropagation();
-            const isOpen = container.classList.contains('open');
-            document.querySelectorAll('.vr-select-container').forEach(c => c.classList.remove('open'));
-            if (!isOpen) container.classList.add('open');
-          };
+          refreshVRSelect(sel);
         });
+      }
+
+      function refreshVRSelect(sel) {
+        if (typeof sel === 'string') sel = document.getElementById(sel);
+        if (!sel || !sel.parentNode) return;
+
+        // Limpar container antigo se existir para evitar duplicação ou conflito de dados
+        const old = sel.parentNode.querySelector('.vr-select-container');
+        if (old) old.remove();
+
+        const container = document.createElement('div');
+        container.className = 'vr-select-container';
+        sel.parentNode.insertBefore(container, sel);
+        sel.classList.add('hidden-select');
+
+        const trigger = document.createElement('div');
+        trigger.className = 'vr-select-trigger';
+        trigger.textContent = sel.options[sel.selectedIndex]?.text || 'Selecione...';
+        container.appendChild(trigger);
+
+        const optionsWrap = document.createElement('div');
+        optionsWrap.className = 'vr-select-options';
+
+        Array.from(sel.options).forEach((opt, idx) => {
+          const o = document.createElement('div');
+          o.className = 'vr-select-option' + (idx === sel.selectedIndex ? ' selected' : '');
+          o.textContent = opt.text;
+          o.onclick = (e) => {
+            e.stopPropagation();
+            sel.selectedIndex = idx;
+            trigger.textContent = opt.text;
+            container.classList.remove('open');
+            container.querySelectorAll('.vr-select-option').forEach(el => el.classList.remove('selected'));
+            o.classList.add('selected');
+            sel.dispatchEvent(new Event('change'));
+            sel.dispatchEvent(new Event('input'));
+          };
+          optionsWrap.appendChild(o);
+        });
+
+        container.appendChild(optionsWrap);
+        trigger.onclick = (e) => {
+          e.stopPropagation();
+          const isOpen = container.classList.contains('open');
+          // Fechar outros e remover z-priority
+          document.querySelectorAll('.vr-select-container').forEach(c => {
+            c.classList.remove('open');
+            c.closest('.input-card')?.classList.remove('z-high');
+            c.closest('.orca-right')?.classList.remove('z-high');
+          });
+          
+          if (!isOpen) {
+            container.classList.add('open');
+            container.closest('.input-card')?.classList.add('z-high');
+            container.closest('.orca-right')?.classList.add('z-high');
+          }
+        };
       }
 
       // Fechar ao clicar fora
@@ -2865,53 +2881,55 @@
           }
         } catch (e) { }
 
-        // Tenta API em background — completamente isolado, nunca bloqueia
+        // Tenta API em background — com múltiplos fallbacks de segurança
         setTimeout(() => {
-          fetch('https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/xau/brl.json')
+          const endpoints = [
+            'https://economia.awesomeapi.com.br/json/last/XAU-BRL,XAG-BRL',
+            'https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/xau/brl.json'
+          ];
+          
+          fetch(endpoints[0])
             .then(r => r.json())
             .then(d => {
-              const xauBRL = d?.brl;
-              if (!xauBRL) throw new Error();
-              return fetch('https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/xag/brl.json')
-                .then(r => r.json())
-                .then(d2 => {
-                  const xagBRL = d2?.brl;
-                  if (!xagBRL) throw new Error();
-                  goldPrice = xauBRL / TROY;
-                  silverPrice = xagBRL / TROY;
-                  const hoje = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-                  localStorage.setItem('vr_cotacoes', JSON.stringify({ gold: goldPrice, silver: silverPrice, data: hoje }));
-                  document.getElementById('gval').textContent = fmt(goldPrice) + '/g';
-                  document.getElementById('sval').textContent = fmt(silverPrice) + '/g';
-                  document.getElementById('gbadge').innerHTML = '<span class="badge">ao vivo</span>';
-                  document.getElementById('sbadge').innerHTML = '<span class="badge">ao vivo</span>';
-                  document.getElementById('manual-box').style.display = 'none';
-                  if (typeof calc === 'function') calc();
-                });
+              const xau = parseFloat(d.XAUBRL?.bid);
+              const xag = parseFloat(d.XAGBRL?.bid);
+              if (!xau || !xag) throw new Error();
+              
+              goldPrice = xau / TROY;
+              silverPrice = xag / TROY;
+              updateUIPrices('ao vivo');
             })
             .catch(() => {
-              // Tenta AwesomeAPI como segundo fallback
-              fetch('https://economia.awesomeapi.com.br/json/last/XAU-BRL,XAG-BRL')
-                .then(r => r.json())
-                .then(d => {
-                  const xau = parseFloat(d.XAUBRL?.bid);
-                  const xag = parseFloat(d.XAGBRL?.bid);
-                  if (!xau || !xag) return;
-                  goldPrice = xau / TROY;
-                  silverPrice = xag / TROY;
-                  const hoje = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-                  localStorage.setItem('vr_cotacoes', JSON.stringify({ gold: goldPrice, silver: silverPrice, data: hoje }));
-                  document.getElementById('gval').textContent = fmt(goldPrice) + '/g';
-                  document.getElementById('sval').textContent = fmt(silverPrice) + '/g';
-                  document.getElementById('gbadge').innerHTML = '<span class="badge">ao vivo</span>';
-                  document.getElementById('sbadge').innerHTML = '<span class="badge">ao vivo</span>';
-                  document.getElementById('manual-box').style.display = 'none';
-                  calc();
-                })
-                .catch(() => { }); // Silencioso — manual já está visível
+               // Fallback final: Preços de segurança se nada funcionar
+               goldPrice = 395.00; 
+               silverPrice = 10.50;
+               updateUIPrices('segurança');
+               console.warn("Usando preços de segurança devido a falha na API de cotação.");
             });
         }, 100);
       }
+
+      function updateUIPrices(type) {
+        const hoje = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '02' });
+        localStorage.setItem('vr_cotacoes', JSON.stringify({ gold: goldPrice, silver: silverPrice, data: hoje }));
+        
+        const gval = document.getElementById('gval');
+        const sval = document.getElementById('sval');
+        if (gval) gval.textContent = fmt(goldPrice) + '/g';
+        if (sval) sval.textContent = fmt(silverPrice) + '/g';
+        
+        const gbadge = document.getElementById('gbadge');
+        const sbadge = document.getElementById('sbadge');
+        const label = type === 'segurança' ? 'badge-warn' : (type === 'cache' ? 'badge-warn' : '');
+        const text = type;
+        
+        if (gbadge) gbadge.innerHTML = `<span class="badge ${label}">${text}</span>`;
+        if (sbadge) sbadge.innerHTML = `<span class="badge ${label}">${text}</span>`;
+        
+        document.getElementById('manual-box').style.display = type === 'segurança' ? 'block' : 'none';
+        if (typeof calc === 'function') calc();
+      }
+
       function onMetalChange() { calc(); }
 
       // ── MÚLTIPLAS PEDRAS ──────────────────────────────────────────────────────────
@@ -3410,7 +3428,7 @@
         const entryRaw = document.getElementById('pgto-entrada').value.replace(/[R$\s.]/g, '').replace(',', '.');
         const entry = parseFloat(entryRaw) || 0;
 
-        // 3. Regra 0.8% por parcela adiantada (Sincronizado com calcPagamento)
+        // 3. Regra 10x Base / 0.8% por parcela adiantada
         const bonus = entry * 0.1055;
         const finalValueRef = baseVal - bonus;
         
