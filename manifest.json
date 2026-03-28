@@ -1,24 +1,21 @@
 {
   "name": "Vanessa Rodopoulos — Orçamento",
   "short_name": "VR Joias",
-  "description": "Calculadora de orçamento para design de joias",
-  "start_url": "/",
+  "description": "Calculadora de Orçamentos Exclusiva VR",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#F7F4EF",
+  "background_color": "#08172E",
   "theme_color": "#08172E",
-  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }

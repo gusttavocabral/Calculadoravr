@@ -3,25 +3,29 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <title>Vanessa Rodopoulos — Orçamento</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="manifest" href="/manifest.json">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="VR Joias">
   <meta name="theme-color" content="#08172E">
-  <link rel="apple-touch-icon" href="/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
     rel="stylesheet">
   <style>
+    /* RESET PARA APP NATIVO (REMOVER TOQUE CINZA) */
     * {
       box-sizing: border-box;
       margin: 0;
-      padding: 0
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
     }
 
     :root {
@@ -39,13 +43,20 @@
       --red: #9b2020;
     }
 
-    html, body {
-      background-color: #D9B69D !important; /* Bronze Vanessa Rodopoulos */
+    body {
       margin: 0;
       padding: 0;
+      min-height: 100vh;
+      background: var(--cream);
       font-family: 'Poppins', sans-serif;
       color: var(--text);
-      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      user-select: none; /* Evita seleção de texto acidental em botões */
+    }
+
+    input, select, textarea {
+      user-select: text; /* Permite digitar */
     }
 
     /* ── NAV ─────────────────────────────────────────────────── */
@@ -467,11 +478,64 @@
       position: relative !important;
     }
 
-    /* Unificação de Escala Histórico/Config */
-    #page-hist .sec, #page-config .config-wrap > div, #page-proposta .proposta-wrap {
-       max-width: 1100px !important;
-       margin: 0 auto !important;
-       padding: 3rem !important;
+    /* --- RESPONSIVIDADE (APP NATIVO) --- */
+    @media screen and (max-width: 768px) {
+      .split-wrap {
+        display: block !important; /* Coluna única */
+        min-height: auto;
+      }
+      
+      .split-left, .split-right {
+        width: 100% !important;
+        position: static !important;
+        min-height: auto !important;
+        padding: 1.5rem 1rem !important;
+      }
+
+      .split-left {
+        padding-top: 3rem !important;
+      }
+
+      .logo-top {
+        position: static;
+        margin-bottom: 1.5rem;
+      }
+
+      #page-orca .split-right {
+        background: transparent !important;
+        padding-bottom: 5rem !important;
+      }
+
+      /* Ajuste de inputs para evitar zoom automático no iOS */
+      input, select, .vr-select-trigger {
+        font-size: 16px !important;
+        padding: 12px 14px !important;
+      }
+
+      .result-card {
+        padding: 1.5rem !important;
+        border-radius: 12px !important;
+      }
+
+      .nav {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 0.5rem 0;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+      }
+
+      .nav-tab {
+        padding: 6px 12px;
+        font-size: 10px;
+      }
+
+      /* Proposta */
+      .proposta-wrap {
+        padding: 2rem 1.25rem !important;
+      }
+      .proposta-wrap > div {
+        padding: 2rem 1.5rem !important;
+      }
     }
 
     #stones-list > div:first-child .field:first-child {
